@@ -15,4 +15,9 @@ public class SceneManager : MonoBehaviour
     {
         
     }
+
+    public void spawnCube()
+    {
+        GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+    }
 }

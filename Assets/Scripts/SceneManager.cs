@@ -4,20 +4,19 @@ using UnityEngine;
 
 public class SceneManager : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    public GameObject cube;
 
     public void spawnCube()
     {
-        GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        Instantiate(cube);
+    }
+
+    public void Quit() 
+    {
+        #if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+        #else
+        Application.Quit();
+        #endif
     }
 }

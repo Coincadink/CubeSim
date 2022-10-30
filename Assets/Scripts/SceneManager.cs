@@ -31,19 +31,22 @@ public class SceneManager : MonoBehaviour
             {
                 for (int k = 0; k < cubeDim; k++)
                 {
-                    GameObject cubeletGO = Instantiate(cubie);
-                    
-                    cubeletGO.transform.localScale = new Vector3(2 / (float) cubeDim, 2 / (float) cubeDim, 2 / (float) cubeDim);
+                    if (i == 0 || i == cubeDim - 1 || j == 0 || j == cubeDim - 1 || k == 0 || k == cubeDim - 1)
+                    {
+                        GameObject cubeletGO = Instantiate(cubie);
+                        
+                        cubeletGO.transform.localScale = new Vector3(2 / (float) cubeDim, 2 / (float) cubeDim, 2 / (float) cubeDim);
 
-                    float x = ((float) i - ((float) cubeDim - 1) / 2)  * (4 / (float) cubeDim);
-                    float y = ((float) j - ((float) cubeDim - 1) / 2)  * (4 / (float) cubeDim);
-                    float z = ((float) k - ((float) cubeDim - 1) / 2)  * (4 / (float) cubeDim);
+                        float x = ((float) i - ((float) cubeDim - 1) / 2)  * (4 / (float) cubeDim);
+                        float y = ((float) j - ((float) cubeDim - 1) / 2)  * (4 / (float) cubeDim);
+                        float z = ((float) k - ((float) cubeDim - 1) / 2)  * (4 / (float) cubeDim);
 
-                    cubeletGO.transform.position = new Vector3(x, y, z);
+                        cubeletGO.transform.position = new Vector3(x, y, z);
 
-                    cube[index] = cubeletGO;
+                        cube[index] = cubeletGO;
 
-                    index++;
+                        index++;
+                    }
                 }
             }
         }

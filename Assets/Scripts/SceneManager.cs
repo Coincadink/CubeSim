@@ -10,7 +10,7 @@ public class SceneManager : MonoBehaviour
     public GameObject cubie;
     public GameObject inputField;
     
-    public int cubeDim = 3;
+    private int cubeDim = 3;
     private GameObject[] cube;
     private bool cubeSpawned = false;
 

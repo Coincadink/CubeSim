@@ -27,7 +27,7 @@ public class Orbit : MonoBehaviour
         yOffset = 0.0f;
     }
 
-    void Update()
+    void FixedUpdate()
     {
         // While middle click is held, allow rotation.
         if (Input.GetMouseButton(2)) rotating = true;

@@ -308,7 +308,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 114505183}
-  - component: {fileID: 114505182}
+  - component: {fileID: 114505184}
   m_Layer: 0
   m_Name: Scene Manager
   m_TagString: Untagged
@@ -316,21 +316,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &114505182
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 114505181}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f53cb78b0b2ded649aed8637ea168605, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  cubie: {fileID: 919132149155446097, guid: fcc5b2c779aa2844599431fd9b560392, type: 3}
-  inputField: {fileID: 107275230}
-  cubeDim: 3
 --- !u!4 &114505183
 Transform:
   m_ObjectHideFlags: 0
@@ -346,6 +331,20 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &114505184
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 114505181}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f53cb78b0b2ded649aed8637ea168605, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cubie: {fileID: 919132149155446097, guid: fcc5b2c779aa2844599431fd9b560392, type: 3}
+  inputField: {fileID: 107275230}
 --- !u!1 &161221715
 GameObject:
   m_ObjectHideFlags: 0
@@ -700,7 +699,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 114505182}
+      - m_Target: {fileID: 114505184}
         m_TargetAssemblyTypeName: SceneManager, Assembly-CSharp
         m_MethodName: spawnCube
         m_Mode: 1
@@ -1447,7 +1446,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 114505182}
+      - m_Target: {fileID: 114505184}
         m_TargetAssemblyTypeName: SceneManager, Assembly-CSharp
         m_MethodName: Clear
         m_Mode: 1
@@ -2503,7 +2502,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 114505182}
+      - m_Target: {fileID: 114505184}
         m_TargetAssemblyTypeName: SceneManager, Assembly-CSharp
         m_MethodName: Quit
         m_Mode: 1

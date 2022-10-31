@@ -2,6 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Handles camera input.
+/// </summary>
 public class Orbit : MonoBehaviour
 { 
     public float xSensitivity = 180.0f;

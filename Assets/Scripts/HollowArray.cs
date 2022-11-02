@@ -37,6 +37,58 @@ namespace HollowArray
             }
         }
 
+        // public T[] this[int y]
+        // {
+        //     get
+        //     {
+        //         int sliceSize = 2 * size + 2 * (size - 2); 
+        //         if (y == 0 || y == size - 1) sliceSize = size * size; 
+
+        //         T[] slice = new T[sliceSize];
+
+        //         int i = 0;
+        //         foreach (int index in SliceCoords(y, sliceSize))
+        //         {
+        //             slice[i] = backer[index];
+        //             i++;
+        //         }
+
+        //         return slice;
+        //     }
+        //     set
+        //     {
+        //         int sliceSize = 2 * size + 2 * (size - 2);
+        //         if (y == 0 || y == size - 1) sliceSize = size * size;
+
+        //         int i = 0;
+        //         foreach (int index in SliceCoords(y, sliceSize))
+        //         {
+        //             backer[index] = value[i];
+        //             i++;
+        //         }
+        //     }
+        // }
+
+        // private int[] SliceCoords(int y, int sliceSize)
+        // {
+        //     // Avoid passing sliceSize by using a List?
+        //     int[] indicies = new int[sliceSize];
+
+        //     int index = 0;
+        //     for (int x = 0; x < size; x++)
+        //     {
+        //         for (int z = 0; z < size; z++)
+        //         {
+        //             if ((x != 0 && x != size - 1) && (z != 0 && z != size - 1)) break;
+
+        //             indicies[index] = CoordsToIndex(x, y, z);
+        //             index++;
+        //         }
+        //     }
+
+        //     return indicies;
+        // }
+
         /// <summary>
         /// Converts 3D coordinates to a 1D coordinate. Removes coordinate values associated with empty space.
         /// Throws <seealso cref="IndexOutOfRangeException"/> if the coordinate exists in empty space inside the cube.
@@ -48,9 +100,10 @@ namespace HollowArray
             if ((x != 0 && x != size - 1) && (y != 0 && y != size - 1) && (z != 0 && z != size - 1))
                 throw new IndexOutOfRangeException();
 
-            int index = y * size * size + z * size + x; // Assuming internal spaces are populated
+            // Ignorant index value
+            int index = (y * size * size) + (z * size) + (x); 
 
-            // For every index inside of the cube, subtract one
+            // Adjust ignorant index for each value expected in a 1D array that isn't present.
             for (int iy = 1; iy < size - 1; iy++)
             {
                 if (iy > y) break;

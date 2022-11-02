@@ -1,7 +1,6 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
+using HollowArray;
 
 /// <summary>
 /// Represents a Rubix cube, as a collection of rotated cubelets.
@@ -9,52 +8,31 @@ using UnityEngine;
 /// For example, the cubelet at [1, 12] on a 5x5 cube is directly to the left of the center cubelet on the 1st face.
 /// </summary>
 public class Cube {
-    private byte[] cubelets;
+    private readonly HollowArray<byte> cubelets;
 
     /// <summary>
     /// Creates a new cube.
     /// </summary>
-    /// <param name="size"></param>
+    /// <param name="size">Side length of the new cube.</param>
     public Cube(int size)
     {
         int arrSize = size * size * size;
         arrSize -= Math.Max(0, (int)Math.Pow(size - 2, 3)); // Remove internal cubes
-        cubelets = new byte[arrSize];
+        cubelets = new(arrSize);
     }
 
     /// <summary>
-    /// Returns the cubelet at the named postion.
+    /// Returns the cubelet at the named coordinate postion.
     /// </summary>
-    /// <param name="face">The face containing the cubelet.</param>
-    /// <param name="num">The location of the cubelet on the named <paramref name="face"/>.</param>
-    /// <returns></returns>
-    public byte GetCubelet(int face, int num)
+    public byte GetCubelet(int x, int y, int z)
     {
-        throw new NotImplementedException();
+        return cubelets[x, y, z];
     }
 
     /// <summary>
-    /// Returns a list of all cubelets in a slice, defined as a square plane of cubelets at a relative <paramref name="depth"/> to a parallel <paramref name="face"/>.
+    /// Returns the cubelet at the named coordinate position.
     /// </summary>
-    /// <param name="face"></param>
-    /// <param name="depth"></param>
-    /// <returns></returns>
-    public byte[] GetSlice(int face, int depth = 0)
-    {
-        return GetSlice(new Slice { Face = face, Depth = depth });
-    }
-
-    /// <summary>
-    /// Returns a list of all cubelets in a slice.
-    /// </summary>
-    /// <returns></returns>
-    public byte[] GetSlice(Slice slice)
-    {
-        throw new NotImplementedException();
-    }
-
-    public byte this[int face, int num] => GetCubelet(face, num);
-    public byte[] this[int face] => GetSlice(face);
+    public byte this[int x, int y, int z] => GetCubelet(x, y, z);
 
     /// <summary>
     /// Rotate one of the cube's slices, where a positive <paramref name="face"/> indicates a clockwise turn, while a negative indicates a counter-clockwise turn.
@@ -62,16 +40,16 @@ public class Cube {
     /// </summary>
     /// <param name="face">The nearest parallel face of the slice.</param>
     /// <param name="depth">Distance of the slice from the named <paramref name="face"/>.</param>
-    public void Rotate(int face, int depth = 0)
+    public void Turn(int face, int depth = 0)
     {
-        Rotate(new Slice { Face = face, Depth = depth });
+        Turn(new Slice { Face = face, Depth = depth });
     }
 
     /// <summary>
     /// Rotate one of the cube's slices, where a positive face indicates a clockwise turn, while a negative indicates a counter-clockwise turn.
     /// </summary>
-    /// <param name="turn">Repr</param>
-    public void Rotate(Slice turn)
+    /// <param name="turn">The slice to turn.</param>
+    public void Turn(Slice turn)
     {
         throw new NotImplementedException(); 
     }

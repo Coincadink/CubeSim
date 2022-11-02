@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Net.Http.Headers;
+using TMPro.EditorUtilities;
+using UnityEngine.Rendering;
 
 namespace HollowArray
 {
@@ -25,6 +28,71 @@ namespace HollowArray
             backer = new T[arrSize];
         }
 
+        public T[] GetSlice(int depth, int dir = 0)
+        {
+            switch (dir)
+            {
+                case 0: // Y
+                    // Return the face as a 1D array, ordered left to right, top to bottom
+                    if (depth == 0 || depth == size - 1) {
+                        return backer[CoordsToIndex(0, depth, 0)..CoordsToIndex(size-1, depth, size-1)];
+                    }
+
+                    //corners: 0, size-1, (size-1)*2, (size-1)*3
+
+                    // Return the slice as a 1D array, ordered in clockwise order, starting at (x, z) = (0, 0).
+                    int perimSize = (size - 1) * 4;
+                    T[] slice = new T[perimSize];
+                    for (int i = 0; i < perimSize; i++)
+                    {
+                        if (i < size) // top side
+                            slice[i] = this[0, depth, i];
+                        else if (i < (size - 1) * 2) // right side, no corners
+                            slice[i] = this[i - (size - 1), depth, size - 1];
+                        else if (i <= (size - 1) * 3) // bottom side
+                            slice[i] = this[size - 1, depth, (size * 2) - i];
+                        else // left side, no corners
+                            slice[i] = this[(size * 3) - 1 - i, depth, 0];
+                    }
+                    return slice;
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
+        public T[,] Get2DSlice(int depth, int dir = 0)
+        {
+            T[] slice = GetSlice(depth, dir);
+            T[,] slice2D;
+            if (depth == 0 || depth == size - 1) // Square face
+            {
+                slice2D = new T[size, size];
+
+                for (int i = 0; i < size; i++)
+                    for (int j = 0; j < size; j++)
+                        slice2D[i, j] = slice[i * size + j];
+            }
+            else 
+            {
+                throw new NotImplementedException();
+            }
+
+            return slice2D;
+        }
+
+        public Array this[int depth, int dir = 0]
+        {
+            get
+            {
+                if (depth == 0 || depth == size - 1) return Get2DSlice(depth, dir);
+                else return GetSlice(depth, dir);
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
         public T this[int x, int y, int z]
         {
             get
@@ -39,22 +107,6 @@ namespace HollowArray
 
         // public T[] this[int y]
         // {
-        //     get
-        //     {
-        //         int sliceSize = 2 * size + 2 * (size - 2); 
-        //         if (y == 0 || y == size - 1) sliceSize = size * size; 
-
-        //         T[] slice = new T[sliceSize];
-
-        //         int i = 0;
-        //         foreach (int index in SliceCoords(y, sliceSize))
-        //         {
-        //             slice[i] = backer[index];
-        //             i++;
-        //         }
-
-        //         return slice;
-        //     }
         //     set
         //     {
         //         int sliceSize = 2 * size + 2 * (size - 2);
@@ -69,25 +121,7 @@ namespace HollowArray
         //     }
         // }
 
-        // private int[] SliceCoords(int y, int sliceSize)
-        // {
-        //     // Avoid passing sliceSize by using a List?
-        //     int[] indicies = new int[sliceSize];
-
-        //     int index = 0;
-        //     for (int x = 0; x < size; x++)
-        //     {
-        //         for (int z = 0; z < size; z++)
-        //         {
-        //             if ((x != 0 && x != size - 1) && (z != 0 && z != size - 1)) break;
-
-        //             indicies[index] = CoordsToIndex(x, y, z);
-        //             index++;
-        //         }
-        //     }
-
-        //     return indicies;
-        // }
+        
 
         /// <summary>
         /// Converts 3D coordinates to a 1D coordinate. Removes coordinate values associated with empty space.

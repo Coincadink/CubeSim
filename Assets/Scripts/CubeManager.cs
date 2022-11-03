@@ -16,7 +16,7 @@ public class CubeManager : MonoBehaviour
     /// <param name="size"></param>
     public void Spawn(int size)
     {
-        cube = new HollowArray<GameObject>(size);
+        cube = new(size);
 
         for (int i = 0; i < size; i++)
         {

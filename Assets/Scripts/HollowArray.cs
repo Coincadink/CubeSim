@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Net.Http.Headers;
-using TMPro.EditorUtilities;
-using UnityEngine.Rendering;
 
 namespace HollowArray
 {

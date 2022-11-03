@@ -26,15 +26,12 @@ public class CubeManager : MonoBehaviour
                 {
                     if (i == 0 || i == size - 1 || j == 0 || j == size - 1 || k == 0 || k == size - 1) // If on cube face
                     {
-                        // Tracks index, from top to bottom, back to front, left to right.
-                        int index = (i * size * size) + (j * size) + k;
-
                         // Create cubelet.
                         GameObject cubelet = Instantiate(cubie);
 
                         // Name and assign parent to cubelet.
                         cubelet.transform.parent = transform;
-                        cubelet.name = "Cubelet " + index;
+                        cubelet.name = "Cubelet " + i + ", " + j + ", " + k;
 
                         // Scale cubelet.
                         cubelet.transform.localScale = new Vector3(2 / (float)size, 2 / (float)size, 2 / (float)size);

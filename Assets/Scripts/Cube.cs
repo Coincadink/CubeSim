@@ -18,10 +18,7 @@ public class Cube {
     public Cube(int size)
     {
         this.size = size;
-
-        int arrSize = size * size * size;
-        arrSize -= Math.Max(0, (int)Math.Pow(size - 2, 3)); // Remove internal cubes
-        cubelets = new(arrSize);
+        cubelets = new(size);
     }
 
     /// <summary>

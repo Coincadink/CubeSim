@@ -87,8 +87,50 @@ public class Cube {
         }
         else if (slice is byte[,] sl2) // 2D slice in row by row order
         {
-            throw new NotImplementedException();
+            byte[,] turnedSlice = new byte[sl2.GetLength(0), sl2.GetLength(1)];
+            if (turn.Dir) // clockwise
+            {
+                turnedSlice = Transpose(sl2);
+                turnedSlice = ReverseRows(turnedSlice);
+            }
+            else // counterclockwise
+            {
+                turnedSlice = ReverseRows(sl2);
+                turnedSlice = Transpose(turnedSlice);
+            }
+
+            cubelets[turn.Depth, turn.Axis] = turnedSlice;
         }
+    }
+
+    private byte[,] Transpose(byte[,] mat)
+    {
+        byte[,] trans = new byte[mat.GetLength(1), mat.GetLength(0)];
+        for (int i = 0; i < mat.GetLength(0); i++)
+        {
+            for (int j = 0; j < mat.GetLength(1); j++)
+            {
+                trans[j, i] = mat[i, j];
+            }
+        }
+        return trans;
+    }
+
+    private byte[,] ReverseRows(byte[,] mat)
+    {
+        int colLen = mat.GetLength(0), rowLen = mat.GetLength(1);
+        byte[,] rev = new byte[colLen, rowLen];
+        for (int i = 0; i < colLen; i++)
+        {
+            int s = 0, e = rowLen - 1;
+            while (s < e)
+            {
+                rev[i, s] = mat[i, e];
+                rev[i, e--] = mat[i, s++];
+            }
+
+        }
+        return rev;
     }
 
     /// <summary>

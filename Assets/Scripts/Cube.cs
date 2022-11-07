@@ -8,7 +8,8 @@ using HollowArray;
 /// For example, the cubelet at [1, 12] on a 5x5 cube is directly to the left of the center cubelet on the 1st face.
 /// </summary>
 public class Cube {
-    private readonly HollowArray<byte> cubelets;
+    private HollowArray<byte> cubelets;
+    private readonly int size;
 
     /// <summary>
     /// Creates a new cube.
@@ -16,9 +17,23 @@ public class Cube {
     /// <param name="size">Side length of the new cube.</param>
     public Cube(int size)
     {
+        this.size = size;
+
         int arrSize = size * size * size;
         arrSize -= Math.Max(0, (int)Math.Pow(size - 2, 3)); // Remove internal cubes
         cubelets = new(arrSize);
+    }
+
+    /// <summary>
+    /// Returns a deep clone of this Cube.
+    /// </summary>
+    /// <returns></returns>
+    public Cube Clone()
+    {
+        return new(size)
+        {
+            cubelets = cubelets.Clone()
+        };
     }
 
     /// <summary>

@@ -49,4 +49,14 @@ public class CubeManager : MonoBehaviour
             }
         }
     }
+
+    /// <summary>
+    /// Turn a slice of the cube.
+    /// </summary>
+    /// <param name="turn"></param>
+    /// <param name="cube"></param>
+    public void Turn(Slice turn, Cube cube)
+    {
+        throw new NotImplementedException();
+    }
 }

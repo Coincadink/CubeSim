@@ -10,8 +10,8 @@ namespace HollowArray
     /// </summary>
     public class HollowArray<T> : IEnumerable<T>
     {
-        readonly T[] backer;
-        readonly int size;
+        private T[] backer;
+        private readonly int size;
 
         /// <summary>
         /// Create a new HollowArray of side length <paramref name="size"/>.
@@ -25,6 +25,32 @@ namespace HollowArray
             backer = new T[arrSize];
         }
 
+        /// <summary>
+        /// Return a shallow clone of this HollowArray.
+        /// </summary>
+        public HollowArray<T> Clone()
+        {
+            return new HollowArray<T>(size)
+            {
+                backer = (T[])backer.Clone()
+            };            
+        }
+
+        /// <summary>
+        /// Returns a slice of the array perpendicular to a coordinate direction, defined using an axis <paramref name="dir"/> and a coordinate <paramref name="depth"/>.
+        /// Axes are defined as:
+        ///     0 = Y (default),
+        ///     1 = Z,
+        ///     2 = X.
+        /// 
+        /// If the specified slice contains empty space in the center, the face is returned in clockwise order, starting at 0, 0 on the two axes.
+        /// 
+        /// If the specified slice is a full face, the face is returned as a series of rows in order X, Z, Y (excluding the specified <paramref name="dir"/>).
+        /// To access a face as a 2D array, consider <seealso cref="Get2DSlice(int, int)"/>.
+        /// </summary>
+        /// <param name="depth">The position of the slice along the given axis.</param>
+        /// <param name="dir">The coordinate direction the slice lies on.</param>
+        /// <returns>A 1D array containing the slice.</returns>
         public T[] GetSlice(int depth, int dir = 0)
         {
             switch (dir)
@@ -57,6 +83,16 @@ namespace HollowArray
             }
         }
 
+        /// <summary>
+        /// Returns a slice of the cube perpendicular to a coordinate direction, defined using an axis <paramref name="dir"/> and a coordinate <paramref name="depth"/>.
+        /// Axes are defined as:
+        ///     0 = Y (default),
+        ///     1 = Z,
+        ///     2 = X.
+        /// </summary>
+        /// <param name="depth">The position of the slice along the given axis.</param>
+        /// <param name="dir">The coordinate direction the slice lies on.</param>
+        /// <returns>A 2D array, ordered X, Y, Z (excluding the specified axis <paramref name="dir"/>).</returns>
         public T[,] Get2DSlice(int depth, int dir = 0)
         {
             T[] slice = GetSlice(depth, dir);
@@ -77,6 +113,12 @@ namespace HollowArray
             return slice2D;
         }
 
+        /// <summary>
+        /// Returns a slice of the array as either a 1D or 2D array, dependent on whether the slice is hollow in the center or full, respectively.
+        /// See method descriptions of <seealso cref="GetSlice(int, int)"/> and <seealso cref="Get2DSlice(int, int)"/>.
+        /// </summary>
+        /// <param name="depth"></param>
+        /// <param name="dir"></param>
         public Array this[int depth, int dir = 0]
         {
             get

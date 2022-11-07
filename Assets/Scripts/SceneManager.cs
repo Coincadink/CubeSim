@@ -43,6 +43,15 @@ public class SceneManager : MonoBehaviour
     }
 
     /// <summary>
+    /// TODO: A function gets user input, constructs <paramref name="turn"/>, then calls this function.
+    /// </summary>
+    private void TurnCube(Slice turn)
+    {
+        cube.Turn(turn);
+        cubeManager.Turn(turn, cube.Clone());
+    }
+
+    /// <summary>
     /// Destroys the existing cube.
     /// </summary>
     public void Clear()

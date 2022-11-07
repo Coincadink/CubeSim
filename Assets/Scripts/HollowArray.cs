@@ -66,18 +66,54 @@ namespace HollowArray
                     // Return the slice as a 1D array, ordered in clockwise order, starting at (x, z) = (0, 0).
                     int perimSize = (size - 1) * 4;
                     T[] slice = new T[perimSize];
+                    var indices = GetClockwiseIndices();
                     for (int i = 0; i < perimSize; i++)
                     {
-                        if (i < size) // top side
-                            slice[i] = this[0, depth, i];
-                        else if (i < (size - 1) * 2) // right side, no corners
-                            slice[i] = this[i - (size - 1), depth, size - 1];
-                        else if (i <= (size - 1) * 3) // bottom side
-                            slice[i] = this[size - 1, depth, (size * 2) - i];
-                        else // left side, no corners
-                            slice[i] = this[(size * 3) - 1 - i, depth, 0];
+                        var (x, z) = indices[i];
+                        slice[i] = this[x, depth, z];
                     }
                     return slice;
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
+        /// <summary>
+        /// Sets a slice of the array perpendicular to a coordinate direction, defined using an axis <paramref name="dir"/> and a coordinate <paramref name="depth"/>.
+        /// Axes are defined as:
+        ///     0 = Y (default),
+        ///     1 = Z,
+        ///     2 = X.
+        /// 
+        /// If the specified slice contains empty space in the center, the face is set in clockwise order, starting at 0, 0 on the two axes.
+        /// 
+        /// If the specified slice is a full face, the face is set as a series of rows in order X, Z, Y (excluding the specified <paramref name="dir"/>).
+        /// To set a face using a 2D array, consider <seealso cref="Set2DSlice(T[,], int, int)"/>.
+        /// </summary>
+        /// <param name="slice">The array containing data to set the slice to.</param>
+        /// <param name="depth">The position of the slice along the given axis.</param>
+        /// <param name="dir">The coordinate direction the slice lies on.</param>
+        public void SetSlice(T[] slice, int depth, int dir = 0)
+        {
+            switch (dir)
+            {
+                case 0:
+                    if (depth == 0 || depth == size - 1)
+                    {
+                        for (int i = 0; i < size; i++)
+                            for (int j = 0; j < size; j++)
+                                this[i, depth, j] = slice[i * size + j];
+                    }
+                    else
+                    {
+                        var indices = GetClockwiseIndices();
+                        for (int i = 0; i < (size - 1) * 4; i++)
+                        {
+                            var (x, z) = indices[i];
+                            this[x, depth, z] = slice[i];
+                        }
+                    }
+                    break;
                 default:
                     throw new NotImplementedException();
             }
@@ -114,8 +150,37 @@ namespace HollowArray
         }
 
         /// <summary>
-        /// Returns a slice of the array as either a 1D or 2D array, dependent on whether the slice is hollow in the center or full, respectively.
-        /// See method descriptions of <seealso cref="GetSlice(int, int)"/> and <seealso cref="Get2DSlice(int, int)"/>.
+        /// Sets a slice of the array perpendicular to a coordinate direction, defined using an axis <paramref name="dir"/> and a coordinate <paramref name="depth"/>.
+        /// Axes are defined as:
+        ///     0 = Y (default),
+        ///     1 = Z,
+        ///     2 = X.
+        /// 
+        /// The face is set in order X, Z, Y (excluding the specified <paramref name="dir"/>).
+        /// </summary>
+        /// <param name="slice">The array containing data to set the slice to.</param>
+        /// <param name="depth">The position of the slice along the given axis.</param>
+        /// <param name="dir">The coordinate direction the slice lies on.</param>
+        public void Set2DSlice(T[,] slice, int depth, int dir = 0)
+        {
+            T[] slice1D;
+            if (depth == 0 || depth == size - 1) // Square face
+            {
+                slice1D = new T[slice.Length];
+                for (int i = 0; i < slice.Length; i++)
+                    slice1D[i] = slice[i / size, i % size];
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
+
+            SetSlice(slice1D, depth, dir);
+        }
+
+        /// <summary>
+        /// Returns/sets a slice of the array as either a 1D or 2D array, dependent on whether the slice is hollow in the center or full, respectively.
+        /// See method descriptions of <seealso cref="GetSlice(int, int)"/>, <seealso cref="Get2DSlice(int, int)"/>, <seealso cref="SetSlice(T[], int, int)"/>, and <seealso cref="Set2DSlice(T[,], int, int)"/>.
         /// </summary>
         /// <param name="depth"></param>
         /// <param name="dir"></param>
@@ -128,7 +193,8 @@ namespace HollowArray
             }
             set
             {
-                throw new NotImplementedException();
+                if (value is T[,] v) Set2DSlice(v, depth, dir);
+                else SetSlice(value as T[], depth, dir);
             }
         }
 
@@ -143,24 +209,6 @@ namespace HollowArray
                 backer[CoordsToIndex(x, y, z)] = value;
             }
         }
-
-        // public T[] this[int y]
-        // {
-        //     set
-        //     {
-        //         int sliceSize = 2 * size + 2 * (size - 2);
-        //         if (y == 0 || y == size - 1) sliceSize = size * size;
-
-        //         int i = 0;
-        //         foreach (int index in SliceCoords(y, sliceSize))
-        //         {
-        //             backer[index] = value[i];
-        //             i++;
-        //         }
-        //     }
-        // }
-
-        
 
         /// <summary>
         /// Converts 3D coordinates to a 1D coordinate. Removes coordinate values associated with empty space.
@@ -202,6 +250,28 @@ namespace HollowArray
         IEnumerator IEnumerable.GetEnumerator()
         {
             return backer.GetEnumerator();
+        }
+
+        /// <summary>
+        /// Returns a list of tuples with the corresponding coordinate pairs for each index of a clockwise slice.
+        /// </summary>
+        private IList<(int, int)> GetClockwiseIndices()
+        {
+            List<(int, int)> indices = new();
+
+            for (int i = 0; i < (size - 1) * 4; i++)
+            {
+                if (i < size) // top side
+                    indices.Add((0, i));
+                else if (i < (size - 1) * 2) // right side, no corners
+                    indices.Add((i - (size - 1), size - 1));
+                else if (i <= (size - 1) * 3) // bottom side
+                    indices.Add((size - 1, (size * 2) - i));
+                else // left side, no corners
+                    indices.Add(((size * 3) - i, 0));
+            }
+
+            return indices;
         }
     }
 }

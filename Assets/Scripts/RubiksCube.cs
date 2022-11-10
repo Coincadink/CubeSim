@@ -7,7 +7,7 @@ using System.Collections.Generic;
 /// Contains six faces, labeled 0-5. Faces are labeled in order Y=0, Y=size, Z=0, Z=size, X=0, X=size.
 /// Each cubelet can also be named by its position in 3D space, where [0,0,0] is the bottom right front corner.
 /// </summary>
-public class RubiksCube : HollowCube<byte>
+public class RubiksCube : HollowCube<CubeOrientation>
 {
     LinkedList<Slice> moveHistory;
 
@@ -34,7 +34,7 @@ public class RubiksCube : HollowCube<byte>
     /// <summary>
     /// Returns the cubelet at the named coordinate postion.
     /// </summary>
-    public byte GetCubelet(int x, int y, int z) => this[x, y, z];
+    public CubeOrientation GetCubelet(int x, int y, int z) => this[x, y, z];
 
     /// <summary>
     /// Rotate one of the cube's slices, where <paramref name="dir"/> = true indicateds a clockwise turn, while false indicates a counter-clockwise turn.
@@ -103,4 +103,14 @@ public struct Slice
     public int Axis;
     public int Depth;
     public bool Dir;
+}
+
+public enum CubeOrientation
+{
+    Up,
+    Down,
+    Left,
+    Right,
+    Front,
+    Back
 }

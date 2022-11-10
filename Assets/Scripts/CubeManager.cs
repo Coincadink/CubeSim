@@ -44,7 +44,7 @@ public class CubeManager : MonoBehaviour
 
                         // Store cubelet to cubes.
                         objCube[i, j, k] = cubelet;
-                        dataCube[i, j, k] = 0;
+                        dataCube[i, j, k] = CubeOrientation.Up;
                     }
                 }
             }

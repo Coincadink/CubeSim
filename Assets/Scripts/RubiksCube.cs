@@ -9,6 +9,8 @@ using System.Collections.Generic;
 /// </summary>
 public class RubiksCube : HollowCube<CubeOrientation>
 {
+    // Just storing scramble for now since I'm lazy and we can't make any other moves.
+    Slice[] scramble;
     LinkedList<Slice> moveHistory;
 
     /// <summary>
@@ -81,6 +83,7 @@ public class RubiksCube : HollowCube<CubeOrientation>
             movesMade[i] = turn;
         }
 
+        scramble = movesMade;
         return movesMade;
     }
 

@@ -56,6 +56,17 @@ public class SceneManager : MonoBehaviour
         Destroy(cubeObject);
         cubeSpawned = false;
     }
+    
+    /// <summary>
+    /// Generates and applies a scramble to the cube.
+    /// </summary>
+    public void Scramble()
+    {
+        if (!cubeSpawned)
+            return;
+
+        cubeManager.Scramble();
+    }
 
     /// <summary>
     /// Quits the application.

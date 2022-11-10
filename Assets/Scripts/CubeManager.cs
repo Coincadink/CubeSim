@@ -1,5 +1,6 @@
 using HollowCube;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class CubeManager : MonoBehaviour
@@ -49,6 +50,16 @@ public class CubeManager : MonoBehaviour
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// Yeah. Deal with a lack of definition.
+    /// </summary>
+    public void Scramble()
+    {
+        IEnumerable<Slice> scramble = dataCube.Scramble();
+        Debug.Log(dataCube.ToString());
+        // Game Object updating dear god good l uck you bold ass motherfuckers
     }
 
     /// <summary>

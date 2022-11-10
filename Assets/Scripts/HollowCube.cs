@@ -26,6 +26,12 @@ namespace HollowCube
             backer = new T[arrSize];
         }
 
+        public override String ToString()
+        {
+            String str = GetSlice(1, 0).ToString();
+            return str;
+        }
+
         /// <summary>
         /// Return a shallow clone of this HollowCube.
         /// </summary>

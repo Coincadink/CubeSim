@@ -67,7 +67,21 @@ public class RubiksCube : HollowCube<byte>
     /// <returns>The turns made to scramble the cube, in order.</returns>
     public IEnumerable<Slice> Scramble(int turns = 100)
     {
-        throw new NotImplementedException();
+        Slice[] movesMade = new Slice[turns];
+        Random r = new();
+
+        for (int i = 0; i < turns; i++)
+        {
+            int axis = r.Next(3);
+            int depth = r.Next(size);
+            bool dir = r.Next() % 2 == 0;
+
+            Slice turn = new() { Axis = axis, Dir = dir, Depth = depth };
+            Turn(turn);
+            movesMade[i] = turn;
+        }
+
+        return movesMade;
     }
 
     /// <summary>

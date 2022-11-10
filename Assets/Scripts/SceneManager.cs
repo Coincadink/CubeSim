@@ -1,9 +1,6 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-
-using UnityEngine;
 using TMPro;
+using UnityEngine;
 
 /// <summary>
 /// Serves as the scene controller.
@@ -14,7 +11,6 @@ public class SceneManager : MonoBehaviour
     public GameObject cubePrefab;
     public GameObject inputField;
 
-    private Cube cube;
     private GameObject cubeObject;
     private CubeManager cubeManager;
 
@@ -38,17 +34,18 @@ public class SceneManager : MonoBehaviour
 
         cubeManager.Spawn(cubeDim);
         cubeSpawned = true;
-
-        cube = new(cubeDim);
     }
 
     /// <summary>
-    /// TODO: A function gets user input, constructs <paramref name="turn"/>, then calls this function.
+    /// Gets user input and turns the cube model.
     /// </summary>
-    private void TurnCube(Slice turn)
+    private void TurnCube()
     {
-        cube.Turn(turn);
-        cubeManager.Turn(turn, cube.Clone());
+        // TODO: collect user input
+
+        // TODO: construct turn using user input
+        Slice turn = new();
+        cubeManager.Turn(turn);
     }
 
     /// <summary>
@@ -57,19 +54,18 @@ public class SceneManager : MonoBehaviour
     public void Clear()
     {
         Destroy(cubeObject);
-        cube = null;
         cubeSpawned = false;
     }
 
     /// <summary>
     /// Quits the application.
     /// </summary>
-    public void Quit() 
+    public void Quit()
     {
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
-        #else
+#else
         Application.Quit();
-        #endif
+#endif
     }
 }

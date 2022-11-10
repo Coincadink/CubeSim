@@ -1,12 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
 /// Handles camera input.
 /// </summary>
 public class Orbit : MonoBehaviour
-{ 
+{
     public float xSensitivity = 180.0f;
     public float ySensitivity = 5.0f;
 
@@ -22,7 +20,7 @@ public class Orbit : MonoBehaviour
 
     private float cameraDistance;
 
-    void Start() 
+    void Start()
     {
         cameraDistance = zoom;
 

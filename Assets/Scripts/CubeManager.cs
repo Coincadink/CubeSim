@@ -1,14 +1,13 @@
+using HollowCube;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-
-using HollowArray;
 
 public class CubeManager : MonoBehaviour
 {
     public GameObject cubie;
-    private HollowArray<GameObject> cube;
+
+    private HollowCube<GameObject> objCube;
+    private RubiksCube dataCube;
 
     /// <summary>
     /// Creates a new cube of the given <paramref name="size"/>.
@@ -16,7 +15,8 @@ public class CubeManager : MonoBehaviour
     /// <param name="size"></param>
     public void Spawn(int size)
     {
-        cube = new(size);
+        objCube = new(size);
+        dataCube = new(size);
 
         for (int i = 0; i < size; i++)
         {
@@ -37,13 +37,14 @@ public class CubeManager : MonoBehaviour
                         cubelet.transform.localScale = new Vector3(2 / (float)size, 2 / (float)size, 2 / (float)size);
 
                         // Place cubelet.
-                        float x = ((float)i - ((float)size - 1) / 2) * (4 / (float)size);
-                        float y = ((float)j - ((float)size - 1) / 2) * (4 / (float)size);
-                        float z = ((float)k - ((float)size - 1) / 2) * (4 / (float)size);
+                        float x = (i - (float)(size - 1) / 2) * (4 / (float)size);
+                        float y = (j - (float)(size - 1) / 2) * (4 / (float)size);
+                        float z = (k - (float)(size - 1) / 2) * (4 / (float)size);
                         cubelet.transform.position = new Vector3(x, y, z);
 
-                        // Store cubelet to HollowArray cube.
-                        cube[i, j, k] = cubelet;
+                        // Store cubelet to cubes.
+                        objCube[i, j, k] = cubelet;
+                        dataCube[i, j, k] = 0;
                     }
                 }
             }
@@ -55,8 +56,11 @@ public class CubeManager : MonoBehaviour
     /// </summary>
     /// <param name="turn"></param>
     /// <param name="cube"></param>
-    public void Turn(Slice turn, Cube cube)
+    public void Turn(Slice turn)
     {
-        throw new NotImplementedException();
+        dataCube.Turn(turn);
+
+        // TODO: make it look purty
+        objCube.Turn(turn);
     }
 }

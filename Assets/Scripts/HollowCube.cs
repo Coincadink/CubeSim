@@ -44,7 +44,7 @@ namespace HollowCube
         }
 
         /// <summary>
-        /// Returns a slice of the array perpendicular to a coordinate direction, defined using an axis <paramref name="dir"/> and a coordinate <paramref name="depth"/>.
+        /// Returns a slice of the array perpendicular to a coordinate direction, defined using an axis <paramref name="dir"/> and a depth <paramref name="depth"/>.
         /// Axes are defined as:
         ///     0 = Y (default),
         ///     1 = Z,
@@ -85,6 +85,22 @@ namespace HollowCube
                     throw new NotImplementedException();
             }
         }
+
+        /// <summary>
+        /// Returns a slice of the array perpendicular to a coordinate direction, defined using an axis and a depth.
+        /// Axes are defined as:
+        ///     0 = Y (default),
+        ///     1 = Z,
+        ///     2 = X.
+        /// 
+        /// If the specified slice contains empty space in the center, the face is returned in clockwise order, starting at 0, 0 on the two axes.
+        /// 
+        /// If the specified slice is a full face, the face is returned as a series of rows in order X, Z, Y (excluding the specified axis).
+        /// To access a face as a 2D array, consider <seealso cref="Get2DSlice(Slice)"/>.
+        /// </summary>
+        /// <param name="slice">The slice of the cube.</param>
+        /// <returns>A 1D array containing the slice.</returns>
+        public T[] GetSlice(Slice slice) => GetSlice(slice.Depth, slice.Axis);
 
         /// <summary>
         /// Sets a slice of the array perpendicular to a coordinate direction, defined using an axis <paramref name="dir"/> and a coordinate <paramref name="depth"/>.
@@ -128,7 +144,7 @@ namespace HollowCube
         }
 
         /// <summary>
-        /// Returns a slice of the cube perpendicular to a coordinate direction, defined using an axis <paramref name="dir"/> and a coordinate <paramref name="depth"/>.
+        /// Returns a slice of the cube perpendicular to a coordinate direction, defined using an axis <paramref name="dir"/> and a depth <paramref name="depth"/>.
         /// Axes are defined as:
         ///     0 = Y (default),
         ///     1 = Z,
@@ -156,6 +172,17 @@ namespace HollowCube
 
             return slice2D;
         }
+
+        /// <summary>
+        /// Returns a slice of the cube perpendicular to a coordinate direction, defined using an axis and a depth.
+        /// Axes are defined as:
+        ///     0 = Y (default),
+        ///     1 = X,
+        ///     2 = Z.
+        /// </summary>
+        /// <param name="slice">The slice of the cube.</param>
+        /// <returns>A 2D array, ordered X, Y, Z (excluding the specified axis <paramref name="dir"/>).</returns>
+        public T[,] Get2DSlice(Slice slice) => Get2DSlice(slice.Depth, slice.Axis);
 
         /// <summary>
         /// Sets a slice of the array perpendicular to a coordinate direction, defined using an axis <paramref name="dir"/> and a coordinate <paramref name="depth"/>.
@@ -377,5 +404,16 @@ namespace HollowCube
 
             return indices;
         }
+    }
+
+    /// <summary>
+    /// Represents a square plane of cubelets, named relative to its perpendicular axis.
+    /// For example, on a 4x4 cube, face 4 is <see cref="Axis"/> 1, <see cref="Depth"/> 3.
+    /// </summary>
+    public struct Slice
+    {
+        public int Axis;
+        public int Depth;
+        public bool Dir;
     }
 }

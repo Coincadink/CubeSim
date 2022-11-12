@@ -43,9 +43,8 @@ public class CubeManager : MonoBehaviour
                         float z = (k - (float)(size - 1) / 2) * (4 / (float)size);
                         cubelet.transform.position = new Vector3(x, y, z);
 
-                        // Store cubelet to cubes.
+                        // Store cubelet to cube.
                         objCube[i, j, k] = cubelet;
-                        dataCube[i, j, k] = CubeOrientation.Up;
                     }
                 }
             }

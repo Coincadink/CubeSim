@@ -1,5 +1,6 @@
 using HollowCube;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 
 /// <summary>
@@ -108,12 +109,38 @@ public struct Slice
     public bool Dir;
 }
 
-public enum CubeOrientation
+private class Cubelet
 {
-    Up,
-    Down,
-    Left,
-    Right,
-    Front,
-    Back
+    Dictionary<byte, byte> faces = new();
+
+    readonly byte[] rotArr = new byte[6] { 110, 000, 101, 010, 100, 001 }; // z, -y, x, -z, y, -x
+
+    public Cubelet(params byte faces)
+    {
+        foreach (byte f in faces)
+        {
+            faces[f] = 4 * (f % 2) + (f / 2); // f % 2 determines direction (1 = pos, 0 = neg), f /2 determines face
+        }
+    }
+
+    public void Rotate(int axis, bool dir)
+    {
+        for (byte face in faces.Keys)
+        {
+            int faceAxis = face / 4;
+            if (faceAxis == axis) continue;
+
+            int fi = rotArr.FindIndex(face);
+            do
+            {
+                (dir) ? fi++ : fi--;
+
+                // loop index
+                if (fi >= 6) fi -= 6;
+                else if (fi < 0) fi += 6;
+            } while (axis != rotArr[fi] / 4);
+
+            faces[face] = rotArr[fi];
+        }
+    }
 }

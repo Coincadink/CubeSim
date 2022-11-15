@@ -60,29 +60,43 @@ namespace HollowCube
         /// <returns>A 1D array containing the slice.</returns>
         public T[] GetSlice(int depth, int dir = 0)
         {
-            switch (dir)
+            if (IsEdge(depth))
             {
-                case 0: // Y
-                    // Return the face as a 1D array, ordered left to right, top to bottom
-                    if (depth == 0 || depth == size - 1)
+                // Return the face as a 1D array, ordered left to right, top to bottom
+                switch (dir)
+                {
+                    case 0: // Y
+                        return backer[CoordsToIndex(0, depth, 0)..(CoordsToIndex(Size - 1, depth, Size - 1) + 1)];
+                    case 1: // Z
+                    case 2: // X
+                        T[] slice = new T[Size * Size];
+                        for (int xz = 0; xz < Size; xz++)
+                            for (int y = 0; y < Size; y++)
+                                slice[y * Size + xz] = dir == 1 ? this[xz, y, depth] : this[depth, y, xz];
+                        return slice;
+                    default:
+                        throw new ArgumentException("Invalid axis");
+                }
+            }
+            else
+            {
+                // Return the slice as a 1D array, ordered in clockwise order, starting at (x|y, y|z) = (0, 0).
+                int perimSize = (Size - 1) * 4;
+                T[] slice = new T[perimSize];
+                var indices = GetClockwiseIndices();
+                for (int i = 0; i < perimSize; i++)
+                {
+                    var (yz, zx) = indices[i];
+                    slice[i] = dir switch
                     {
-                        return backer[CoordsToIndex(0, depth, 0)..CoordsToIndex(size - 1, depth, size - 1)];
-                    }
+                        0 => this[zx, depth, yz],
+                        1 => this[zx, yz, depth],
+                        2 => this[depth, yz, zx],
+                        _ => throw new ArgumentException("Invalid axis")
+                    };
+                }
 
-                    //corners: 0, size-1, (size-1)*2, (size-1)*3
-
-                    // Return the slice as a 1D array, ordered in clockwise order, starting at (x, z) = (0, 0).
-                    int perimSize = (size - 1) * 4;
-                    T[] slice = new T[perimSize];
-                    var indices = GetClockwiseIndices();
-                    for (int i = 0; i < perimSize; i++)
-                    {
-                        var (x, z) = indices[i];
-                        slice[i] = this[x, depth, z];
-                    }
-                    return slice;
-                default:
-                    throw new NotImplementedException();
+                return slice;
             }
         }
 
@@ -119,27 +133,40 @@ namespace HollowCube
         /// <param name="dir">The coordinate direction the slice lies on.</param>
         public void SetSlice(T[] slice, int depth, int dir = 0)
         {
-            switch (dir)
+            if (IsEdge(depth))
             {
-                case 0:
-                    if (depth == 0 || depth == size - 1)
-                    {
-                        for (int i = 0; i < size; i++)
-                            for (int j = 0; j < size; j++)
-                                this[i, depth, j] = slice[i * size + j];
-                    }
-                    else
-                    {
-                        var indices = GetClockwiseIndices();
-                        for (int i = 0; i < (size - 1) * 4; i++)
+                for (int yz = 0; yz < Size; yz++)
+                    for (int zx = 0; zx < Size; zx++)
+                        switch (dir)
                         {
-                            var (x, z) = indices[i];
-                            this[x, depth, z] = slice[i];
+                            case 0:
+                                this[zx, depth, yz] = slice[yz * Size + zx]; break;
+                            case 1:
+                                this[zx, yz, depth] = slice[yz * Size + zx]; break;
+                            case 2:
+                                this[depth, yz, zx] = slice[yz * Size + zx]; break;
+                            default:
+                                throw new ArgumentException("Invalid axis");
                         }
+            }
+            else
+            {
+                var indices = GetClockwiseIndices();
+                for (int i = 0; i < (Size - 1) * 4; i++)
+                {
+                    var (yz, zx) = indices[i];
+                    switch (dir)
+                    {
+                        case 0:
+                            this[zx, depth, yz] = slice[i]; break;
+                        case 1:
+                            this[zx, yz, depth] = slice[i]; break;
+                        case 2:
+                            this[depth, yz, zx] = slice[i]; break;
+                        default:
+                            throw new ArgumentException("Invalid axis");
                     }
-                    break;
-                default:
-                    throw new NotImplementedException();
+                }
             }
         }
 
@@ -155,19 +182,30 @@ namespace HollowCube
         /// <returns>A 2D array, ordered X, Y, Z (excluding the specified axis <paramref name="dir"/>).</returns>
         public T[,] Get2DSlice(int depth, int dir = 0)
         {
-            T[] slice = GetSlice(depth, dir);
-            T[,] slice2D;
-            if (depth == 0 || depth == size - 1) // Square face
+            T[,] slice2D = new T[Size, Size];
+            if (IsEdge(depth)) // Face
             {
-                slice2D = new T[size, size];
-
-                for (int i = 0; i < size; i++)
-                    for (int j = 0; j < size; j++)
-                        slice2D[i, j] = slice[i * size + j];
+                T[] slice = GetSlice(depth, dir);
+                for (int i = 0; i < Size; i++)
+                    for (int j = 0; j < Size; j++)
+                        slice2D[i, j] = slice[i * Size + j];
             }
-            else
+            else // Hollow slice
             {
-                throw new NotImplementedException();
+                for (int i = 0; i < Size; i++)
+                {
+                    for (int j = 0; j < Size; j++)
+                    {
+                        if (!IsEdge(i) && !IsEdge(j)) continue;
+                        slice2D[i, j] = dir switch
+                        {
+                            0 => this[i, depth, j],
+                            1 => this[i, j, depth],
+                            2 => this[depth, i, j],
+                            _ => throw new ArgumentException("Invalid axis")
+                        };
+                    }
+                }
             }
 
             return slice2D;

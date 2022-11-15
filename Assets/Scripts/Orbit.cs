@@ -30,8 +30,8 @@ public class Orbit : MonoBehaviour
 
     void FixedUpdate()
     {
-        // While middle click is held, allow rotation.
-        if (Input.GetMouseButton(2)) rotating = true;
+        // While left click is held, allow rotation.
+        if (Input.GetMouseButton(0)) rotating = true;
         else rotating = false;
 
         if (rotating)

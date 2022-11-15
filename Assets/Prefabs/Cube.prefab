@@ -44,4 +44,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 28aabf13933134e438fa2cc79dcbf5ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cubie: {fileID: 919132149155446097, guid: fcc5b2c779aa2844599431fd9b560392, type: 3}
+  cubie: {fileID: 919132149155446097, guid: 0b3a05d77a59fe14fb644c69b60b6abf, type: 3}

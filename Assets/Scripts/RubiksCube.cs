@@ -27,8 +27,8 @@ public class RubiksCube : HollowCube<Cubelet>
         {
             for (int z = 0; z < size; z++)
             {
-                AddFace(x, 0, z, 000);
-                AddFace(x, size - 1, z, 100);
+                AddFace(x, 0, z, 0b000);
+                AddFace(x, size - 1, z, 0b100);
             }
         }
         // Z faces
@@ -36,8 +36,8 @@ public class RubiksCube : HollowCube<Cubelet>
         {
             for (int y = 0; y < size; y++)
             {
-                AddFace(x, y, 0, 001);
-                AddFace(x, y, size - 1, 101);
+                AddFace(x, y, 0, 0b001);
+                AddFace(x, y, size - 1, 0b101);
             }
         }
         // X faces
@@ -45,8 +45,8 @@ public class RubiksCube : HollowCube<Cubelet>
         {
             for (int z = 0; z < size; z++)
             {
-                AddFace(0, y, z, 010);
-                AddFace(size - 1, y, z, 110);
+                AddFace(0, y, z, 0b010);
+                AddFace(size - 1, y, z, 0b110);
             }
         }
     }
@@ -119,7 +119,7 @@ public class RubiksCube : HollowCube<Cubelet>
         for (int i = 0; i < turns; i++)
         {
             int axis = r.Next(3);
-            int depth = r.Next(size);
+            int depth = r.Next(Size);
             bool dir = r.Next() % 2 == 0;
 
             Slice turn = new() { Axis = axis, Dir = dir, Depth = depth };
@@ -145,7 +145,7 @@ public class Cubelet
 {
     readonly Dictionary<byte, byte> faces = new();
 
-    readonly byte[] rotArr = new byte[6] { 110, 000, 101, 010, 100, 001 }; // z, -y, x, -z, y, -x
+    readonly static byte[] rotArr = new byte[6] { 0b110, 0b000, 0b101, 0b010, 0b100, 0b001 }; // z, -y, x, -z, y, -x
 
     public Cubelet(params byte[] faces)
     {
@@ -162,7 +162,7 @@ public class Cubelet
 
     public void Rotate(int axis, bool dir)
     {
-        foreach (byte face in faces.Keys)
+        foreach (byte face in faces.Keys.ToHashSet())
         {
             int faceAxis = face / 4;
             if (faceAxis == axis) continue;

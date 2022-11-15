@@ -11,18 +11,18 @@ namespace HollowCube
     public class HollowCube<T> : IEnumerable<T>
     {
         private T[] backer;
-        protected readonly int size;
+        public readonly int Size;
 
         /// <summary>
-        /// Create a new HollowCube of side length <paramref name="size"/>.
+        /// Create a new HollowCube of side length <paramref name="Size"/>.
         /// </summary>
-        /// <param name="size"></param>
+        /// <param name="Size"></param>
         public HollowCube(int size)
         {
-            this.size = size;
+            Size = size;
 
-            int arrSize = size * size * size;
-            arrSize -= Math.Max(0, (int)Math.Pow(size - 2, 3)); // Remove internal spaces
+            int arrSize = Size * Size * Size;
+            arrSize -= Math.Max(0, (int)Math.Pow(Size - 2, 3)); // Remove internal spaces
             backer = new T[arrSize];
         }
 
@@ -37,7 +37,7 @@ namespace HollowCube
         /// </summary>
         public HollowCube<T> Clone()
         {
-            return new HollowCube<T>(size)
+            return new HollowCube<T>(Size)
             {
                 backer = (T[])backer.Clone()
             };
@@ -199,11 +199,11 @@ namespace HollowCube
         public void Set2DSlice(T[,] slice, int depth, int dir = 0)
         {
             T[] slice1D;
-            if (depth == 0 || depth == size - 1) // Square face
+            if (IsEdge(depth)) // Square face
             {
                 slice1D = new T[slice.Length];
                 for (int i = 0; i < slice.Length; i++)
-                    slice1D[i] = slice[i / size, i % size];
+                    slice1D[i] = slice[i / Size, i % Size];
             }
             else
             {
@@ -223,7 +223,7 @@ namespace HollowCube
         {
             get
             {
-                if (depth == 0 || depth == size - 1) return Get2DSlice(depth, dir);
+                if (IsEdge(depth)) return Get2DSlice(depth, dir);
                 else return GetSlice(depth, dir);
             }
             set
@@ -252,20 +252,20 @@ namespace HollowCube
         private int CoordsToIndex(int x, int y, int z)
         {
             // If not on cube surface, throw exception
-            if ((x != 0 && x != size - 1) && (y != 0 && y != size - 1) && (z != 0 && z != size - 1))
+            if (!IsEdge(x) && !IsEdge(y) && !IsEdge(z))
                 throw new IndexOutOfRangeException();
 
             // Ignorant index value
-            int index = (y * size * size) + (z * size) + (x);
+            int index = (y * Size * Size) + (z * Size) + (x);
 
             // Adjust ignorant index for each value expected in a 1D array that isn't present.
-            for (int iy = 1; iy < size - 1; iy++)
+            for (int iy = 1; iy < Size - 1; iy++)
             {
                 if (iy > y) break;
-                for (int iz = 1; iz < size - 1; iz++)
+                for (int iz = 1; iz < Size - 1; iz++)
                 {
                     if (iz > z && iy == y) break;
-                    for (int ix = 1; ix < size - 1; ix++)
+                    for (int ix = 1; ix < Size - 1; ix++)
                     {
                         if (ix > x && iz == z && iy == y) break;
                         index--;
@@ -297,27 +297,27 @@ namespace HollowCube
             Array slice = this[turn.Depth, turn.Axis];
 
             // 1D slice in clockwise order
-            if (slice is byte[] sl1) 
+            if (slice is T[] sl1) 
             {
-                byte[] turnedSlice = new byte[sl1.Length];
+                T[] turnedSlice = new T[sl1.Length];
                 if (turn.Dir) // clockwise
                 {
-                    sl1[0..(sl1.Length - (size - 1))].CopyTo(turnedSlice, size - 1);
-                    sl1[(sl1.Length - (size - 1))..sl1.Length].CopyTo(turnedSlice, 0);
+                    sl1[0..(sl1.Length - (Size - 1))].CopyTo(turnedSlice, Size - 1);
+                    sl1[(sl1.Length - (Size - 1))..sl1.Length].CopyTo(turnedSlice, 0);
                 }
                 else // counterclockwise
                 {
-                    sl1[(size - 1)..sl1.Length].CopyTo(turnedSlice, 0);
-                    sl1[0..(size - 1)].CopyTo(turnedSlice, sl1.Length - (size - 1));
+                    sl1[(Size - 1)..sl1.Length].CopyTo(turnedSlice, 0);
+                    sl1[0..(Size - 1)].CopyTo(turnedSlice, sl1.Length - (Size - 1));
                 }
 
                 this[turn.Depth, turn.Axis] = turnedSlice;
             }
 
             // 2D slice in row by row order
-            else if (slice is byte[,] sl2) 
+            else if (slice is T[,] sl2) 
             {
-                byte[,] turnedSlice;
+                T[,] turnedSlice;
                 if (turn.Dir) // clockwise
                 {
                     turnedSlice = Transpose(sl2);
@@ -338,9 +338,9 @@ namespace HollowCube
         /// </summary>
         /// <param name="mat">The matrix to transpose.</param>
         /// <returns>The transposed matrix.</returns>
-        private static byte[,] Transpose(byte[,] mat)
+        private static T[,] Transpose(T[,] mat)
         {
-            byte[,] trans = new byte[mat.GetLength(1), mat.GetLength(0)];
+            T[,] trans = new T[mat.GetLength(1), mat.GetLength(0)];
             for (int i = 0; i < mat.GetLength(0); i++)
             {
                 for (int j = 0; j < mat.GetLength(1); j++)
@@ -356,14 +356,14 @@ namespace HollowCube
         /// </summary>
         /// <param name="mat">The matrix to reverse the rows of.</param>
         /// <returns>The row reversed matrix.</returns>
-        private static byte[,] ReverseRows(byte[,] mat)
+        private static T[,] ReverseRows(T[,] mat)
         {
             int colLen = mat.GetLength(0), rowLen = mat.GetLength(1);
-            byte[,] rev = new byte[colLen, rowLen];
+            T[,] rev = new T[colLen, rowLen];
             for (int i = 0; i < colLen; i++)
             {
                 int s = 0, e = rowLen - 1;
-                while (s < e)
+                while (s <= e)
                 {
                     rev[i, s] = mat[i, e];
                     rev[i, e--] = mat[i, s++];
@@ -390,19 +390,26 @@ namespace HollowCube
         {
             List<(int, int)> indices = new();
 
-            for (int i = 0; i < (size - 1) * 4; i++)
+            for (int i = 0; i < (Size - 1) * 4; i++)
             {
-                if (i < size) // top side
+                //corners: 0, Size-1, (Size-1)*2, (Size-1)*3
+
+                if (i < Size) // top side
                     indices.Add((0, i));
-                else if (i < (size - 1) * 2) // right side, no corners
-                    indices.Add((i - (size - 1), size - 1));
-                else if (i <= (size - 1) * 3) // bottom side
-                    indices.Add((size - 1, (size * 2) - i));
+                else if (i < (Size - 1) * 2) // right side, no corners
+                    indices.Add((i - (Size - 1), Size - 1));
+                else if (i <= (Size - 1) * 3) // bottom side
+                    indices.Add((Size - 1, (Size - 1) * 3 - i));
                 else // left side, no corners
-                    indices.Add(((size * 3) - i, 0));
+                    indices.Add(((Size - 1) * 4 - i, 0));
             }
 
             return indices;
+        }
+
+        private bool IsEdge(int value)
+        {
+            return value == 0 || value == Size - 1;
         }
     }
 

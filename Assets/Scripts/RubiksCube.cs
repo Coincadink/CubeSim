@@ -101,9 +101,7 @@ public class RubiksCube : HollowCube<Cubelet>
         moveHistory.AddLast(slice);
 
         foreach (Cubelet c in GetSlice(slice))
-        {
             c.Rotate(slice.Axis, slice.Dir);
-        }
     }
 
     /// <summary>
@@ -164,7 +162,7 @@ public class Cubelet
     {
         foreach (byte face in faces.Keys.ToHashSet())
         {
-            int faceAxis = face / 4;
+            int faceAxis = face % 4;
             if (faceAxis == axis) continue;
 
             int fi = Array.FindIndex(rotArr, x => x == face);
@@ -175,7 +173,7 @@ public class Cubelet
                 // loop index
                 if (fi >= 6) fi -= 6;
                 else if (fi < 0) fi += 6;
-            } while (axis != rotArr[fi] / 4);
+            } while (axis != rotArr[fi] % 4);
 
             faces[face] = rotArr[fi];
         }

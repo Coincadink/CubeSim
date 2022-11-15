@@ -71,7 +71,7 @@ public class CubeManager : MonoBehaviour
     /// <param name="cube"></param>
     public void Turn(Slice turn)
     {
-        dataCube.Turn(turn);
+        //dataCube.Turn(turn);
 
         var axis = turn.Axis switch
         {

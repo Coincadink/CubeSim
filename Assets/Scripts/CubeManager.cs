@@ -52,13 +52,16 @@ public class CubeManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Yeah. Deal with a lack of definition.
+    /// Scramble the cube.
     /// </summary>
     public void Scramble()
     {
-        IEnumerable<Slice> scramble = dataCube.Scramble();
-        Debug.Log(dataCube.ToString());
-        // Game Object updating dear god good l uck you bold ass motherfuckers
+        IEnumerable<Slice> scramble = dataCube.Scramble(1);
+        
+        foreach (Slice s in scramble)
+        {
+            Turn(s);
+        }
     }
 
     /// <summary>
@@ -70,7 +73,21 @@ public class CubeManager : MonoBehaviour
     {
         dataCube.Turn(turn);
 
+        var axis = turn.Axis switch
+        {
+            0 => Vector3.up, //y
+            1 => Vector3.forward, //x
+            2 => Vector3.right, //z
+            _ => throw new ArgumentException("Invalid axis"),
+        };
+
         // TODO: make it look purty
+        foreach (GameObject obj in objCube.GetSlice(turn))
+        {
+            float degrees = turn.Dir ? 90f : -90f;
+            obj.transform.RotateAround(Vector3.zero, axis, degrees);
+        }
+
         objCube.Turn(turn);
     }
 }

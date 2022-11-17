@@ -1,6 +1,5 @@
 using HollowCube;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -155,7 +154,7 @@ public class Cubelet
 
     public void AddFace(byte face)
     {
-        faces[face] = (byte)(4 * (face % 2) + (face / 2)); // f % 2 determines direction (1 = pos, 0 = neg), f /2 determines face
+        faces[face] = (byte)(4 * (face % 2) + (face / 2)); // f % 2 determines direction (1 = pos, 0 = neg), f / 2 determines face
     }
 
     public void Rotate(int axis, bool dir)

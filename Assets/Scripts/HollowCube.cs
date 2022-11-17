@@ -70,8 +70,8 @@ namespace HollowCube
                     case 1: // Z
                     case 2: // X
                         T[] slice = new T[Size * Size];
-                        for (int xz = 0; xz < Size; xz++)
-                            for (int y = 0; y < Size; y++)
+                        for (int y = 0; y < Size; y++)
+                            for (int xz = 0; xz < Size; xz++)
                                 slice[y * Size + xz] = dir == 1 ? this[xz, y, depth] : this[depth, y, xz];
                         return slice;
                     default:
@@ -335,7 +335,7 @@ namespace HollowCube
             Array slice = this[turn.Depth, turn.Axis];
 
             // 1D slice in clockwise order
-            if (slice is T[] sl1) 
+            if (slice is T[] sl1)
             {
                 T[] turnedSlice = new T[sl1.Length];
                 if (turn.Dir) // clockwise
@@ -353,7 +353,7 @@ namespace HollowCube
             }
 
             // 2D slice in row by row order
-            else if (slice is T[,] sl2) 
+            else if (slice is T[,] sl2)
             {
                 T[,] turnedSlice;
                 if (turn.Dir) // clockwise

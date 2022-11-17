@@ -21,6 +21,7 @@ public class CubeManager : MonoBehaviour
 
         for (int i = 0; i < size; i++)
         {
+            int iAdj = size - i - 1; // swap direction of X (convert from model to unity)
             for (int j = 0; j < size; j++)
             {
                 for (int k = 0; k < size; k++)
@@ -38,7 +39,7 @@ public class CubeManager : MonoBehaviour
                         cubelet.transform.localScale = new Vector3(2 / (float)size, 2 / (float)size, 2 / (float)size);
 
                         // Place cubelet.
-                        float x = (i - (float)(size - 1) / 2) * (4 / (float)size);
+                        float x = (iAdj - (float)(size - 1) / 2) * (4 / (float)size);
                         float y = (j - (float)(size - 1) / 2) * (4 / (float)size);
                         float z = (k - (float)(size - 1) / 2) * (4 / (float)size);
                         cubelet.transform.position = new Vector3(x, y, z);
@@ -56,8 +57,8 @@ public class CubeManager : MonoBehaviour
     /// </summary>
     public void Scramble()
     {
-        IEnumerable<Slice> scramble = dataCube.Scramble(1);
-        
+        IEnumerable<Slice> scramble = dataCube.Scramble();
+
         foreach (Slice s in scramble)
         {
             Turn(s);
@@ -72,12 +73,13 @@ public class CubeManager : MonoBehaviour
     public void Turn(Slice turn)
     {
         //dataCube.Turn(turn);
+        objCube.Turn(turn);
 
         var axis = turn.Axis switch
         {
             0 => Vector3.up, //y
-            1 => Vector3.forward, //x
-            2 => Vector3.right, //z
+            1 => Vector3.forward, //z
+            2 => Vector3.left, //x
             _ => throw new ArgumentException("Invalid axis"),
         };
 
@@ -85,9 +87,8 @@ public class CubeManager : MonoBehaviour
         foreach (GameObject obj in objCube.GetSlice(turn))
         {
             float degrees = turn.Dir ? 90f : -90f;
+            if (turn.Axis == 1) degrees *= -1; // reverse direction of z axis turns because reasons idk spatial problems give me migraines
             obj.transform.RotateAround(Vector3.zero, axis, degrees);
         }
-
-        objCube.Turn(turn);
     }
 }

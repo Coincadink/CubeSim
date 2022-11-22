@@ -12,6 +12,7 @@ namespace HollowCube
     {
         private T[] backer;
         public readonly int Size;
+        private readonly int mSize; // Size - 1, this value is used frequently
 
         /// <summary>
         /// Create a new HollowCube of side length <paramref name="Size"/>.
@@ -20,6 +21,7 @@ namespace HollowCube
         public HollowCube(int size)
         {
             Size = size;
+            mSize = size - 1;
 
             int arrSize = Size * Size * Size;
             arrSize -= Math.Max(0, (int)Math.Pow(Size - 2, 3)); // Remove internal spaces
@@ -66,7 +68,7 @@ namespace HollowCube
                 switch (dir)
                 {
                     case 0: // Y
-                        return backer[CoordsToIndex(0, depth, 0)..(CoordsToIndex(Size - 1, depth, Size - 1) + 1)];
+                        return backer[CoordsToIndex(0, depth, 0)..(CoordsToIndex(mSize, depth, mSize) + 1)];
                     case 1: // Z
                     case 2: // X
                         T[] slice = new T[Size * Size];
@@ -81,7 +83,7 @@ namespace HollowCube
             else
             {
                 // Return the slice as a 1D array, ordered in clockwise order, starting at (x|y, y|z) = (0, 0).
-                int perimSize = (Size - 1) * 4;
+                int perimSize = (mSize) * 4;
                 T[] slice = new T[perimSize];
                 var indices = GetClockwiseIndices();
                 for (int i = 0; i < perimSize; i++)
@@ -152,7 +154,7 @@ namespace HollowCube
             else
             {
                 var indices = GetClockwiseIndices();
-                for (int i = 0; i < (Size - 1) * 4; i++)
+                for (int i = 0; i < (mSize) * 4; i++)
                 {
                     var (yz, zx) = indices[i];
                     switch (dir)
@@ -294,22 +296,20 @@ namespace HollowCube
                 throw new IndexOutOfRangeException();
 
             // Ignorant index value
-            int index = (y * Size * Size) + (z * Size) + (x);
+            int index = (y * Size * Size) + (z * Size) + x;
+            int iSize = Size - 2; // size of internal space
 
             // Adjust ignorant index for each value expected in a 1D array that isn't present.
-            for (int iy = 1; iy < Size - 1; iy++)
+            if (y > 1)
+                for (int iy = 1; iy < y; iy++)
+                    index -= iSize * iSize;
+            if (!IsEdge(y) && z > 1)
             {
-                if (iy > y) break;
-                for (int iz = 1; iz < Size - 1; iz++)
-                {
-                    if (iz > z && iy == y) break;
-                    for (int ix = 1; ix < Size - 1; ix++)
-                    {
-                        if (ix > x && iz == z && iy == y) break;
-                        index--;
-                    }
-                }
+                for (int iz = 1; iz < z; iz++)
+                    index -= iSize;
             }
+            if (!IsEdge(y) && !IsEdge(z) && x > 0)
+                index -= iSize;
 
             return index;
         }
@@ -340,13 +340,13 @@ namespace HollowCube
                 T[] turnedSlice = new T[sl1.Length];
                 if (turn.Dir) // clockwise
                 {
-                    sl1[0..(sl1.Length - (Size - 1))].CopyTo(turnedSlice, Size - 1);
-                    sl1[(sl1.Length - (Size - 1))..sl1.Length].CopyTo(turnedSlice, 0);
+                    sl1[0..(sl1.Length - (mSize))].CopyTo(turnedSlice, mSize);
+                    sl1[(sl1.Length - (mSize))..sl1.Length].CopyTo(turnedSlice, 0);
                 }
                 else // counterclockwise
                 {
-                    sl1[(Size - 1)..sl1.Length].CopyTo(turnedSlice, 0);
-                    sl1[0..(Size - 1)].CopyTo(turnedSlice, sl1.Length - (Size - 1));
+                    sl1[(mSize)..sl1.Length].CopyTo(turnedSlice, 0);
+                    sl1[0..(mSize)].CopyTo(turnedSlice, sl1.Length - (mSize));
                 }
 
                 this[turn.Depth, turn.Axis] = turnedSlice;
@@ -428,18 +428,18 @@ namespace HollowCube
         {
             List<(int, int)> indices = new();
 
-            for (int i = 0; i < (Size - 1) * 4; i++)
+            for (int i = 0; i < (mSize) * 4; i++)
             {
                 //corners: 0, Size-1, (Size-1)*2, (Size-1)*3
 
                 if (i < Size) // top side
                     indices.Add((0, i));
-                else if (i < (Size - 1) * 2) // right side, no corners
-                    indices.Add((i - (Size - 1), Size - 1));
-                else if (i <= (Size - 1) * 3) // bottom side
-                    indices.Add((Size - 1, (Size - 1) * 3 - i));
+                else if (i < (mSize) * 2) // right side, no corners
+                    indices.Add((i - (mSize), mSize));
+                else if (i <= (mSize) * 3) // bottom side
+                    indices.Add((mSize, (mSize) * 3 - i));
                 else // left side, no corners
-                    indices.Add(((Size - 1) * 4 - i, 0));
+                    indices.Add(((mSize) * 4 - i, 0));
             }
 
             return indices;
@@ -447,7 +447,7 @@ namespace HollowCube
 
         private bool IsEdge(int value)
         {
-            return value == 0 || value == Size - 1;
+            return value == 0 || value == mSize;
         }
     }
 

@@ -16,6 +16,9 @@ public class CubeManager : MonoBehaviour
     public int instantiationLimit = 2048;
     private readonly Queue<SpawnCubeletJob> spawnList = new();
 
+    public float turnSpeed = 1f;
+    private readonly LinkedList<TurnJob> turnList = new();
+
     private void Update()
     {
         int spawned = 0;
@@ -37,8 +40,25 @@ public class CubeManager : MonoBehaviour
 
             // Store cubelet to cube.
             objCube[spawnJob.i, spawnJob.j, spawnJob.k] = cubelet;
+        }
+
+        if (turnList.Count > 0)
+        {
+            var turn = turnList.First.Value;
+
+            float dist = turn.Degrees * turnSpeed * Time.deltaTime;
+            if (Math.Abs(dist + turn.Traveled) > Math.Abs(turn.Degrees))
+                dist = turn.Degrees - turn.Traveled;
+
+            foreach (var obj in turn)
+                obj.transform.RotateAround(Vector3.zero, turn.Axis, dist);
+
+            turn.Travel(dist);
+            if (turn.Traveled == turn.Degrees)
+                lock (turnList) { turnList.RemoveFirst(); }
+        }
     }
-    }
+
     /// <summary>
     /// Creates a new cube of the given <paramref name="size"/>.
     /// </summary>
@@ -66,7 +86,7 @@ public class CubeManager : MonoBehaviour
                 {
                     if (i == 0 || i == size - 1 || j == 0 || j == size - 1 || k == 0 || k == size - 1) // If on cube face
                     {
-                        // Create cubelet.
+                        // Calculate cubelet location.
                         float x = (iAdj - (float)(size - 1) / 2) * (4 / (float)size);
                         float y = (j - (float)(size - 1) / 2) * (4 / (float)size);
                         float z = (k - (float)(size - 1) / 2) * (4 / (float)size);
@@ -80,7 +100,7 @@ public class CubeManager : MonoBehaviour
         }
     }
 
-    private struct SpawnCubeletJob
+    private class SpawnCubeletJob
     {
         public string Name { get; private set; }
         public Vector3 Position { get; private set; }
@@ -94,11 +114,35 @@ public class CubeManager : MonoBehaviour
         }
     }
 
-                        // Store cubelet to cube.
-                        objCube[i, j, k] = cubelet;
-                    }
-                }
-            }
+    private class TurnJob : IEnumerable<GameObject>
+    {
+        private readonly GameObject[] cubelets;
+        public Vector3 Axis { get; private set; }
+        public float Degrees { get; private set; }
+        public float Traveled { get; private set; }
+
+        public TurnJob(GameObject[] cubelets, Vector3 axis, float degrees)
+        {
+            this.cubelets = new GameObject[cubelets.Length];
+            cubelets.CopyTo(this.cubelets, 0);
+            Axis = axis;
+            Degrees = degrees;
+            Traveled = 0f;
+        }
+
+        public void Travel(float amount)
+        {
+            Traveled += amount;
+        }
+
+        public IEnumerator<GameObject> GetEnumerator()
+        {
+            return ((IEnumerable<GameObject>)cubelets).GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return cubelets.GetEnumerator();
         }
     }
 
@@ -132,13 +176,10 @@ public class CubeManager : MonoBehaviour
             2 => Vector3.left, //x
             _ => throw new ArgumentException("Invalid axis"),
         };
+        float degrees = turn.Dir ? 90f : -90f;
+        if (turn.Axis == 1) degrees *= -1; // reverse direction of z axis turns because reasons idk spatial problems give me migraines
 
-        // TODO: make it look purty
-        foreach (GameObject obj in objCube.GetSlice(turn))
-        {
-            float degrees = turn.Dir ? 90f : -90f;
-            if (turn.Axis == 1) degrees *= -1; // reverse direction of z axis turns because reasons idk spatial problems give me migraines
-            obj.transform.RotateAround(Vector3.zero, axis, degrees);
-        }
+        TurnJob turnJob = new(objCube.GetSlice(turn), axis, degrees);
+        lock (turnList) { turnList.AddLast(turnJob); }
     }
 }

@@ -45,3 +45,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cubie: {fileID: 919132149155446097, guid: 0b3a05d77a59fe14fb644c69b60b6abf, type: 3}
+  instantiationLimit: 2048
+  turnSpeed: 5

@@ -108,7 +108,7 @@ public class RubiksCube : HollowCube<Cubelet>
     /// </summary>
     /// <param name="turns">Number of turns to make to scramble the cube.</param>
     /// <returns>The turns made to scramble the cube, in order.</returns>
-    public IEnumerable<Slice> Scramble(int turns = 100)
+    public IEnumerable<Slice> Scramble(int turns = 10)
     {
         Slice[] movesMade = new Slice[turns];
         Random r = new();

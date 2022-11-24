@@ -31,7 +31,7 @@ public class SceneManager : MonoBehaviour
         cubeManager = cubeObject.GetComponent<CubeManager>();
 
         string text = inputField.GetComponent<TMP_InputField>().text;
-        cubeDim = Int32.Parse(text);
+        cubeDim = int.Parse(text);
 
         cubeManager.Spawn(cubeDim);
         cubeSpawned = true;

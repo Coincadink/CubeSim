@@ -1,9 +1,9 @@
 using HollowCube;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
-using System.Collections;
 
 public class CubeManager : MonoBehaviour
 {
@@ -11,16 +11,17 @@ public class CubeManager : MonoBehaviour
     private Vector3 scale;
 
     private HollowCube<GameObject> objCube;
-    private RubiksCube dataCube;
+    private PuzzleCube dataCube;
 
     public int instantiationLimit = 2048;
     private readonly Queue<SpawnCubeletJob> spawnList = new();
 
     public float turnSpeed = 1f;
-    private readonly LinkedList<TurnJob> turnList = new();
+    private readonly Queue<TurnJob> turnList = new();
 
     private void Update()
     {
+        // Instantiate cubelets
         int spawned = 0;
         while (spawnList.Count > 0 && spawned++ < instantiationLimit)
         {
@@ -42,9 +43,10 @@ public class CubeManager : MonoBehaviour
             objCube[spawnJob.i, spawnJob.j, spawnJob.k] = cubelet;
         }
 
+        // Rotate cubelets
         if (turnList.Count > 0)
         {
-            var turn = turnList.First.Value;
+            var turn = turnList.Peek();
 
             float dist = turn.Degrees * turnSpeed * Time.deltaTime;
             if (Math.Abs(dist + turn.Traveled) > Math.Abs(turn.Degrees))
@@ -55,7 +57,7 @@ public class CubeManager : MonoBehaviour
 
             turn.Travel(dist);
             if (turn.Traveled == turn.Degrees)
-                lock (turnList) { turnList.RemoveFirst(); }
+                lock (turnList) { turnList.Dequeue(); }
         }
     }
 
@@ -69,6 +71,10 @@ public class CubeManager : MonoBehaviour
         spawnThread.Start(size);
     }
 
+    /// <summary>
+    /// Initializes cubelet parameters and adds them to the spawn queue.
+    /// </summary>
+    /// <param name="sizeObj"></param>
     private void GenerateCubeletJobs(object sizeObj)
     {
         int size = (int)sizeObj;
@@ -100,6 +106,9 @@ public class CubeManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Represents a cubelet waiting to be instantiated.
+    /// </summary>
     private class SpawnCubeletJob
     {
         public string Name { get; private set; }
@@ -114,6 +123,9 @@ public class CubeManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Represents a cubelet slice that needs to be turned.
+    /// </summary>
     private class TurnJob : IEnumerable<GameObject>
     {
         private readonly GameObject[] cubelets;
@@ -180,6 +192,6 @@ public class CubeManager : MonoBehaviour
         if (turn.Axis == 1) degrees *= -1; // reverse direction of z axis turns because reasons idk spatial problems give me migraines
 
         TurnJob turnJob = new(objCube.GetSlice(turn), axis, degrees);
-        lock (turnList) { turnList.AddLast(turnJob); }
+        lock (turnList) { turnList.Enqueue(turnJob); }
     }
 }

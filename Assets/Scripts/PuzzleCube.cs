@@ -8,7 +8,7 @@ using System.Linq;
 /// Contains six faces, labeled 0-5. Faces are labeled in order Y=0, Y=size, Z=0, Z=size, X=0, X=size.
 /// Each cubelet can also be named by its position in 3D space, where [0,0,0] is the bottom right front corner.
 /// </summary>
-public class RubiksCube : HollowCube<Cubelet>
+public class PuzzleCube : HollowCube<Cubelet>
 {
     // Just storing scramble for now since I'm lazy and we can't make any other moves.
     Slice[] scramble;
@@ -18,7 +18,7 @@ public class RubiksCube : HollowCube<Cubelet>
     /// Creates a new cube.
     /// </summary>
     /// <param name="size">Side length of the new cube.</param>
-    public RubiksCube(int size) : base(size)
+    public PuzzleCube(int size) : base(size)
     {
         // Initialize faces
         // Y faces
@@ -50,6 +50,9 @@ public class RubiksCube : HollowCube<Cubelet>
         }
     }
 
+    /// <summary>
+    /// Adds the face to the cubelet at the given coordinates. If the cubelet does not exist, creats a new cubelet.
+    /// </summary>
     private void AddFace(int x, int y, int z, byte face)
     {
         if (this[x, y, z] is null)
@@ -63,12 +66,12 @@ public class RubiksCube : HollowCube<Cubelet>
     }
 
     /// <summary>
-    /// Returns a deep clone of this RubiksCube.
+    /// Returns a deep clone of this PuzzleCube.
     /// </summary>
     /// <returns></returns>
-    public new RubiksCube Clone()
+    public new PuzzleCube Clone()
     {
-        RubiksCube clone = (RubiksCube)base.Clone();
+        PuzzleCube clone = (PuzzleCube)base.Clone();
         clone.moveHistory = new(moveHistory);
         return clone;
     }
@@ -138,10 +141,14 @@ public class RubiksCube : HollowCube<Cubelet>
     }
 }
 
+/// <summary>
+/// Represents a cubelet, a single piece of the larger cube. Contains up to three faces.
+/// </summary>
 public class Cubelet
 {
     readonly Dictionary<byte, byte> faces = new();
 
+    // Contains faces in a specific order, used for calculating rotations.
     readonly static byte[] rotArr = new byte[6] { 0b110, 0b000, 0b101, 0b010, 0b100, 0b001 }; // z, -y, x, -z, y, -x
 
     public Cubelet(params byte[] faces)
@@ -154,9 +161,14 @@ public class Cubelet
 
     public void AddFace(byte face)
     {
-        faces[face] = (byte)(4 * (face % 2) + (face / 2)); // f % 2 determines direction (1 = pos, 0 = neg), f / 2 determines face
+        faces[face] = (byte)(4 * (face % 2) + (face / 2)); // f % 2 determines direction (1 = pos, 0 = neg), f / 2 determines axis
     }
 
+    /// <summary>
+    /// Rotate all faces on the cubelet around the axis.
+    /// </summary>
+    /// <param name="axis"></param>
+    /// <param name="dir"></param>
     public void Rotate(int axis, bool dir)
     {
         foreach (byte face in faces.Keys.ToHashSet())
@@ -167,6 +179,7 @@ public class Cubelet
             int fi = Array.FindIndex(rotArr, x => x == face);
             do
             {
+                // get new face direction
                 fi += dir ? 1 : -1;
 
                 // loop index

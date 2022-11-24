@@ -15,9 +15,9 @@ namespace HollowCube
         private readonly int mSize; // Size - 1, this value is used frequently
 
         /// <summary>
-        /// Create a new HollowCube of side length <paramref name="Size"/>.
+        /// Create a new HollowCube of side length <paramref name="size"/>.
         /// </summary>
-        /// <param name="Size"></param>
+        /// <param name="size"></param>
         public HollowCube(int size)
         {
             Size = size;
@@ -28,9 +28,9 @@ namespace HollowCube
             backer = new T[arrSize];
         }
 
-        public override String ToString()
+        public override string ToString()
         {
-            String str = GetSlice(1, 0).ToString();
+            string str = GetSlice(1, 0).ToString();
             return str;
         }
 
@@ -46,7 +46,7 @@ namespace HollowCube
         }
 
         /// <summary>
-        /// Returns a slice of the array perpendicular to a coordinate direction, defined using an axis <paramref name="dir"/> and a depth <paramref name="depth"/>.
+        /// Returns a slice of the array perpendicular to a coordinate direction, defined using an <paramref name="axis"/> and a <paramref name="depth"/>.
         /// Axes are defined as:
         ///     0 = Y (default),
         ///     1 = Z,
@@ -54,18 +54,18 @@ namespace HollowCube
         /// 
         /// If the specified slice contains empty space in the center, the face is returned in clockwise order, starting at 0, 0 on the two axes.
         /// 
-        /// If the specified slice is a full face, the face is returned as a series of rows in order X, Z, Y (excluding the specified <paramref name="dir"/>).
+        /// If the specified slice is a full face, the face is returned as a series of rows in order X, Z, Y (excluding the specified <paramref name="axis"/>).
         /// To access a face as a 2D array, consider <seealso cref="Get2DSlice(int, int)"/>.
         /// </summary>
         /// <param name="depth">The position of the slice along the given axis.</param>
-        /// <param name="dir">The coordinate direction the slice lies on.</param>
+        /// <param name="axis">The coordinate direction the slice lies on.</param>
         /// <returns>A 1D array containing the slice.</returns>
-        public T[] GetSlice(int depth, int dir = 0)
+        public T[] GetSlice(int depth, int axis = 0)
         {
             if (IsEdge(depth))
             {
                 // Return the face as a 1D array, ordered left to right, top to bottom
-                switch (dir)
+                switch (axis)
                 {
                     case 0: // Y
                         return backer[CoordsToIndex(0, depth, 0)..(CoordsToIndex(mSize, depth, mSize) + 1)];
@@ -74,7 +74,7 @@ namespace HollowCube
                         T[] slice = new T[Size * Size];
                         for (int y = 0; y < Size; y++)
                             for (int xz = 0; xz < Size; xz++)
-                                slice[y * Size + xz] = dir == 1 ? this[xz, y, depth] : this[depth, y, xz];
+                                slice[y * Size + xz] = axis == 1 ? this[xz, y, depth] : this[depth, y, xz];
                         return slice;
                     default:
                         throw new ArgumentException("Invalid axis");
@@ -89,7 +89,7 @@ namespace HollowCube
                 for (int i = 0; i < perimSize; i++)
                 {
                     var (yz, zx) = indices[i];
-                    slice[i] = dir switch
+                    slice[i] = axis switch
                     {
                         0 => this[zx, depth, yz],
                         1 => this[zx, yz, depth],
@@ -119,7 +119,7 @@ namespace HollowCube
         public T[] GetSlice(Slice slice) => GetSlice(slice.Depth, slice.Axis);
 
         /// <summary>
-        /// Sets a slice of the array perpendicular to a coordinate direction, defined using an axis <paramref name="dir"/> and a coordinate <paramref name="depth"/>.
+        /// Sets a slice of the array perpendicular to a coordinate direction, defined using an <paramref name="axis"/> and a <paramref name="depth"/>.
         /// Axes are defined as:
         ///     0 = Y (default),
         ///     1 = Z,
@@ -127,19 +127,19 @@ namespace HollowCube
         /// 
         /// If the specified slice contains empty space in the center, the face is set in clockwise order, starting at 0, 0 on the two axes.
         /// 
-        /// If the specified slice is a full face, the face is set as a series of rows in order X, Z, Y (excluding the specified <paramref name="dir"/>).
+        /// If the specified slice is a full face, the face is set as a series of rows in order X, Z, Y (excluding the specified <paramref name="axis"/>).
         /// To set a face using a 2D array, consider <seealso cref="Set2DSlice(T[,], int, int)"/>.
         /// </summary>
         /// <param name="slice">The array containing data to set the slice to.</param>
         /// <param name="depth">The position of the slice along the given axis.</param>
-        /// <param name="dir">The coordinate direction the slice lies on.</param>
-        public void SetSlice(T[] slice, int depth, int dir = 0)
+        /// <param name="axis">The coordinate direction the slice lies on.</param>
+        public void SetSlice(T[] slice, int depth, int axis = 0)
         {
             if (IsEdge(depth))
             {
                 for (int yz = 0; yz < Size; yz++)
                     for (int zx = 0; zx < Size; zx++)
-                        switch (dir)
+                        switch (axis)
                         {
                             case 0:
                                 this[zx, depth, yz] = slice[yz * Size + zx]; break;
@@ -157,7 +157,7 @@ namespace HollowCube
                 for (int i = 0; i < (mSize) * 4; i++)
                 {
                     var (yz, zx) = indices[i];
-                    switch (dir)
+                    switch (axis)
                     {
                         case 0:
                             this[zx, depth, yz] = slice[i]; break;
@@ -173,21 +173,21 @@ namespace HollowCube
         }
 
         /// <summary>
-        /// Returns a slice of the cube perpendicular to a coordinate direction, defined using an axis <paramref name="dir"/> and a depth <paramref name="depth"/>.
+        /// Returns a slice of the cube perpendicular to a coordinate direction, defined using an <paramref name="axis"/> and a <paramref name="depth"/>.
         /// Axes are defined as:
         ///     0 = Y (default),
         ///     1 = Z,
         ///     2 = X.
         /// </summary>
         /// <param name="depth">The position of the slice along the given axis.</param>
-        /// <param name="dir">The coordinate direction the slice lies on.</param>
-        /// <returns>A 2D array, ordered X, Y, Z (excluding the specified axis <paramref name="dir"/>).</returns>
-        public T[,] Get2DSlice(int depth, int dir = 0)
+        /// <param name="axis">The coordinate direction the slice lies on.</param>
+        /// <returns>A 2D array, ordered X, Y, Z (excluding the specified axis <paramref name="axis"/>).</returns>
+        public T[,] Get2DSlice(int depth, int axis = 0)
         {
             T[,] slice2D = new T[Size, Size];
             if (IsEdge(depth)) // Face
             {
-                T[] slice = GetSlice(depth, dir);
+                T[] slice = GetSlice(depth, axis);
                 for (int i = 0; i < Size; i++)
                     for (int j = 0; j < Size; j++)
                         slice2D[i, j] = slice[i * Size + j];
@@ -199,7 +199,7 @@ namespace HollowCube
                     for (int j = 0; j < Size; j++)
                     {
                         if (!IsEdge(i) && !IsEdge(j)) continue;
-                        slice2D[i, j] = dir switch
+                        slice2D[i, j] = axis switch
                         {
                             0 => this[i, depth, j],
                             1 => this[i, j, depth],
@@ -221,22 +221,22 @@ namespace HollowCube
         ///     2 = Z.
         /// </summary>
         /// <param name="slice">The slice of the cube.</param>
-        /// <returns>A 2D array, ordered X, Y, Z (excluding the specified axis <paramref name="dir"/>).</returns>
+        /// <returns>A 2D array, ordered X, Y, Z (excluding the specified axis).</returns>
         public T[,] Get2DSlice(Slice slice) => Get2DSlice(slice.Depth, slice.Axis);
 
         /// <summary>
-        /// Sets a slice of the array perpendicular to a coordinate direction, defined using an axis <paramref name="dir"/> and a coordinate <paramref name="depth"/>.
+        /// Sets a slice of the array perpendicular to a coordinate direction, defined using an <paramref name="axis"/> and a <paramref name="depth"/>.
         /// Axes are defined as:
         ///     0 = Y (default),
         ///     1 = Z,
         ///     2 = X.
         /// 
-        /// The face is set in order X, Z, Y (excluding the specified <paramref name="dir"/>).
+        /// The face is set in order X, Z, Y (excluding the specified <paramref name="axis"/>).
         /// </summary>
         /// <param name="slice">The array containing data to set the slice to.</param>
         /// <param name="depth">The position of the slice along the given axis.</param>
-        /// <param name="dir">The coordinate direction the slice lies on.</param>
-        public void Set2DSlice(T[,] slice, int depth, int dir = 0)
+        /// <param name="axis">The coordinate direction the slice lies on.</param>
+        public void Set2DSlice(T[,] slice, int depth, int axis = 0)
         {
             T[] slice1D;
             if (IsEdge(depth)) // Square face
@@ -250,7 +250,7 @@ namespace HollowCube
                 throw new NotImplementedException();
             }
 
-            SetSlice(slice1D, depth, dir);
+            SetSlice(slice1D, depth, axis);
         }
 
         /// <summary>

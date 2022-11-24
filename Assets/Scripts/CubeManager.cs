@@ -1,21 +1,59 @@
 using HollowCube;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
+using System.Collections;
 
 public class CubeManager : MonoBehaviour
 {
     public GameObject cubie;
+    private Vector3 scale;
 
     private HollowCube<GameObject> objCube;
     private RubiksCube dataCube;
 
+    public int instantiationLimit = 2048;
+    private readonly Queue<SpawnCubeletJob> spawnList = new();
+
+    private void Update()
+    {
+        int spawned = 0;
+        while (spawnList.Count > 0 && spawned++ < instantiationLimit)
+        {
+            SpawnCubeletJob spawnJob;
+            lock (spawnList) { spawnJob = spawnList.Dequeue(); }
+
+            // Create cubelet.
+            GameObject cubelet = Instantiate(cubie);
+
+            // Name and assign parent to cubelet.
+            cubelet.transform.parent = transform;
+            cubelet.name = spawnJob.Name;
+
+            // Scale and place cubelet.
+            cubelet.transform.localScale = scale;
+            cubelet.transform.position = spawnJob.Position;
+
+            // Store cubelet to cube.
+            objCube[spawnJob.i, spawnJob.j, spawnJob.k] = cubelet;
+    }
+    }
     /// <summary>
     /// Creates a new cube of the given <paramref name="size"/>.
     /// </summary>
     /// <param name="size"></param>
     public void Spawn(int size)
     {
+        Thread spawnThread = new(GenerateCubeletJobs);
+        spawnThread.Start(size);
+    }
+
+    private void GenerateCubeletJobs(object sizeObj)
+    {
+        int size = (int)sizeObj;
+        scale = new Vector3(2 / (float)size, 2 / (float)size, 2 / (float)size);
+
         objCube = new(size);
         dataCube = new(size);
 
@@ -29,20 +67,32 @@ public class CubeManager : MonoBehaviour
                     if (i == 0 || i == size - 1 || j == 0 || j == size - 1 || k == 0 || k == size - 1) // If on cube face
                     {
                         // Create cubelet.
-                        GameObject cubelet = Instantiate(cubie);
-
-                        // Name and assign parent to cubelet.
-                        cubelet.transform.parent = transform;
-                        cubelet.name = "Cubelet " + i + ", " + j + ", " + k;
-
-                        // Scale cubelet.
-                        cubelet.transform.localScale = new Vector3(2 / (float)size, 2 / (float)size, 2 / (float)size);
-
-                        // Place cubelet.
                         float x = (iAdj - (float)(size - 1) / 2) * (4 / (float)size);
                         float y = (j - (float)(size - 1) / 2) * (4 / (float)size);
                         float z = (k - (float)(size - 1) / 2) * (4 / (float)size);
-                        cubelet.transform.position = new Vector3(x, y, z);
+                        Vector3 pos = new(x, y, z);
+
+                        SpawnCubeletJob cubelet = new($"Cubelet {i}, {j}, {k}", pos, i, j, k);
+                        lock (spawnList) { spawnList.Enqueue(cubelet); }
+                    }
+                }
+            }
+        }
+    }
+
+    private struct SpawnCubeletJob
+    {
+        public string Name { get; private set; }
+        public Vector3 Position { get; private set; }
+        public int i, j, k;
+
+        public SpawnCubeletJob(string name, Vector3 position, int i, int j, int k)
+        {
+            Name = name;
+            Position = position;
+            this.i = i; this.j = j; this.k = k;
+        }
+    }
 
                         // Store cubelet to cube.
                         objCube[i, j, k] = cubelet;

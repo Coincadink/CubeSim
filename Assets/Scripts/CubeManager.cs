@@ -87,9 +87,9 @@ public class CubeManager : MonoBehaviour
                     if (i == 0 || i == size - 1 || j == 0 || j == size - 1 || k == 0 || k == size - 1) // If on cube face
                     {
                         // Calculate cubelet location.
-                        float x = (iAdj - (float)(size - 1) / 2) * (4 / (float)size);
-                        float y = (j - (float)(size - 1) / 2) * (4 / (float)size);
-                        float z = (k - (float)(size - 1) / 2) * (4 / (float)size);
+                        float x = (4 * (float)iAdj + 2) / size - 2;
+                        float y = (4 * (float)j + 2) / size - 2;
+                        float z = (4 * (float)k + 2) / size - 2;
                         Vector3 pos = new(x, y, z);
 
                         SpawnCubeletJob cubelet = new($"Cubelet {i}, {j}, {k}", pos, i, j, k);

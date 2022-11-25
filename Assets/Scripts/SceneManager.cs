@@ -70,6 +70,14 @@ public class SceneManager : MonoBehaviour
     }
 
     /// <summary>
+    /// Solves the cube.
+    /// </summary>
+    public void Solve()
+    {
+        cubeManager.Solve();
+    }
+
+    /// <summary>
     /// Quits the application.
     /// </summary>
     public void Quit()

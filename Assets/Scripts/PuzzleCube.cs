@@ -11,7 +11,7 @@ using System.Linq;
 public class PuzzleCube : HollowCube<Cubelet>
 {
     // Just storing scramble for now since I'm lazy and we can't make any other moves.
-    Slice[] scramble;
+    readonly List<Slice> scramble = new();
     LinkedList<Slice> moveHistory = new();
 
     /// <summary>
@@ -127,7 +127,7 @@ public class PuzzleCube : HollowCube<Cubelet>
             movesMade[i] = turn;
         }
 
-        scramble = movesMade;
+        scramble.AddRange(movesMade);
         return movesMade;
     }
 
@@ -137,7 +137,12 @@ public class PuzzleCube : HollowCube<Cubelet>
     /// <returns>The turns made to solve the cube, in order.</returns>
     public IEnumerable<Slice> Solve()
     {
-        throw new NotImplementedException();
+        // lmao
+        scramble.ForEach(s => s.Dir = !s.Dir);
+        scramble.Reverse();
+        var solve = scramble.ToArray();
+        scramble.Clear();
+        return solve;
     }
 }
 

@@ -194,4 +194,14 @@ public class CubeManager : MonoBehaviour
         TurnJob turnJob = new(objCube.GetSlice(turn), axis, degrees);
         lock (turnList) { turnList.Enqueue(turnJob); }
     }
+
+    public void Solve()
+    {
+        IEnumerable<Slice> solve = dataCube.Solve();
+
+        foreach (Slice s in solve)
+        {
+            Turn(s);
+        }
+    }
 }

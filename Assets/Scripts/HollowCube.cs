@@ -455,7 +455,7 @@ namespace HollowCube
     /// Represents a square plane of cubelets, named relative to its perpendicular axis.
     /// For example, on a 4x4 cube, face 4 is <see cref="Axis"/> 1, <see cref="Depth"/> 3.
     /// </summary>
-    public struct Slice
+    public class Slice
     {
         public int Axis;
         public int Depth;

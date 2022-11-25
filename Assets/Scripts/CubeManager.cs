@@ -175,7 +175,6 @@ public class CubeManager : MonoBehaviour
     /// Turn a slice of the cube.
     /// </summary>
     /// <param name="turn"></param>
-    /// <param name="cube"></param>
     public void Turn(Slice turn)
     {
         //dataCube.Turn(turn);

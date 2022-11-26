@@ -7,6 +7,8 @@ using UnityEngine;
 
 public class CubeManager : MonoBehaviour
 {
+    private int size;
+
     public GameObject cubie;
     private Vector3 scale;
 
@@ -21,6 +23,36 @@ public class CubeManager : MonoBehaviour
 
     private void Update()
     {
+        // Manage cube x, y, z rotations.
+        if (Input.GetKeyDown("right"))
+        {
+            for (int i = 0; i < size; i++)
+            {
+                Turn(new Slice { Axis = 1, Dir = false, Depth = i });
+            }
+        }
+        if (Input.GetKeyDown("left"))
+        {
+            for (int i = 0; i < size; i++)
+            {
+                Turn(new Slice { Axis = 1, Dir = true, Depth = i });
+            }
+        }
+        if (Input.GetKeyDown("up"))
+        {
+            for (int i = 0; i < size; i++)
+            {
+                Turn(new Slice { Axis = 2, Dir = true, Depth = i });
+            }
+        }
+        if (Input.GetKeyDown("down"))
+        {
+            for (int i = 0; i < size; i++)
+            {
+                Turn(new Slice { Axis = 2, Dir = false, Depth = i });
+            }
+        }
+
         // Instantiate cubelets
         int spawned = 0;
         while (spawnList.Count > 0 && spawned++ < instantiationLimit)
@@ -69,6 +101,8 @@ public class CubeManager : MonoBehaviour
     {
         Thread spawnThread = new(GenerateCubeletJobs);
         spawnThread.Start(size);
+
+        this.size = size;
     }
 
     /// <summary>

@@ -2,7 +2,7 @@ using HollowCube;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-
+    
 /// <summary>
 /// Represents a Rubik's cube as a collection of rotated cubelets.
 /// Contains six faces, labeled 0-5. Faces are labeled in order Y=0, Y=size, Z=0, Z=size, X=0, X=size.

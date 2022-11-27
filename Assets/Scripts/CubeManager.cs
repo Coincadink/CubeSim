@@ -1,4 +1,5 @@
 using HollowCube;
+using JetBrains.Annotations;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -19,33 +20,33 @@ public class CubeManager : MonoBehaviour
     private readonly Queue<SpawnCubeletJob> spawnList = new();
 
     public float turnSpeed = 1f;
-    private readonly Queue<TurnJob> turnList = new();
+    private readonly LinkedList<TurnJob> turnList = new();
 
     private void Update()
     {
         // Manage cube x, y, z rotations.
-        if (Input.GetKeyDown("right"))
+        if (Input.GetKeyDown(KeyCode.RightArrow))
         {
             for (int i = 0; i < size; i++)
             {
                 Turn(new Slice { Axis = 1, Dir = false, Depth = i });
             }
         }
-        if (Input.GetKeyDown("left"))
+        if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
             for (int i = 0; i < size; i++)
             {
                 Turn(new Slice { Axis = 1, Dir = true, Depth = i });
             }
         }
-        if (Input.GetKeyDown("up"))
+        if (Input.GetKeyDown(KeyCode.UpArrow))
         {
             for (int i = 0; i < size; i++)
             {
                 Turn(new Slice { Axis = 2, Dir = true, Depth = i });
             }
         }
-        if (Input.GetKeyDown("down"))
+        if (Input.GetKeyDown(KeyCode.DownArrow))
         {
             for (int i = 0; i < size; i++)
             {
@@ -78,18 +79,32 @@ public class CubeManager : MonoBehaviour
         // Rotate cubelets
         if (turnList.Count > 0)
         {
-            var turn = turnList.Peek();
+            var turnNode = turnList.First;
+            var turnVal = turnNode.Value;
+            Vector3 axis = turnVal.Axis;
+            HashSet<TurnJob> simultaneous = new();
+            while (axis.Equals(turnVal.Axis))
+            {
+                if (simultaneous.Contains(turnVal)) break;
+                simultaneous.Add(turnVal);
+                turnNode = turnNode.Next;
+                if (turnNode is null) break;
+                turnVal = turnNode.Value;
+            }
 
-            float dist = turn.Degrees * turnSpeed * Time.deltaTime;
-            if (Math.Abs(dist + turn.Traveled) > Math.Abs(turn.Degrees))
-                dist = turn.Degrees - turn.Traveled;
+            foreach (TurnJob turn in simultaneous)
+            {
+                float dist = turn.Degrees * turnSpeed * Time.deltaTime;
+                if (Math.Abs(dist + turn.Traveled) > Math.Abs(turn.Degrees))
+                    dist = turn.Degrees - turn.Traveled;
 
-            foreach (var obj in turn)
-                obj.transform.RotateAround(Vector3.zero, turn.Axis, dist);
+                foreach (var obj in turn)
+                    obj.transform.RotateAround(Vector3.zero, turn.Axis, dist);
 
-            turn.Travel(dist);
-            if (turn.Traveled == turn.Degrees)
-                lock (turnList) { turnList.Dequeue(); }
+                turn.Travel(dist);
+                if (turn.Traveled == turn.Degrees)
+                    lock (turnList) { turnList.RemoveFirst(); }
+            }
         }
     }
 
@@ -190,6 +205,18 @@ public class CubeManager : MonoBehaviour
         {
             return cubelets.GetEnumerator();
         }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is not TurnJob other) return false;
+            return this.Axis == other.Axis && this.Degrees == other.Degrees
+                && this.cubelets[0] == other.cubelets[0];
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(cubelets, Axis, Degrees, Traveled);
+        }
     }
 
     /// <summary>
@@ -225,7 +252,7 @@ public class CubeManager : MonoBehaviour
         if (turn.Axis == 1) degrees *= -1; // reverse direction of z axis turns because reasons idk spatial problems give me migraines
 
         TurnJob turnJob = new(objCube.GetSlice(turn), axis, degrees);
-        lock (turnList) { turnList.Enqueue(turnJob); }
+        lock (turnList) { turnList.AddLast(turnJob); }
     }
 
     public void Solve()

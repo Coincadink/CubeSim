@@ -3,6 +3,7 @@ using JetBrains.Annotations;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using UnityEngine;
 
@@ -25,34 +26,30 @@ public class CubeManager : MonoBehaviour
     private void Update()
     {
         // Manage cube x, y, z rotations.
-        if (Input.GetKeyDown(KeyCode.RightArrow))
+        void HandleKeyInput(KeyCode key)
         {
-            for (int i = 0; i < size; i++)
+            if (Input.GetKeyDown(key))
             {
-                Turn(new Slice { Axis = 1, Dir = false, Depth = i });
+                switch (key)
+                {
+                    case KeyCode.RightArrow:
+                    case KeyCode.LeftArrow:
+                        for (int i = 0; i < size; i++)
+                            Turn(new Slice { Axis = 1, Dir = key == KeyCode.LeftArrow, Depth = i });
+                        break;
+                    case KeyCode.UpArrow:
+                    case KeyCode.DownArrow:
+                        for (int i = 0; i < size; i++)
+                            Turn(new Slice { Axis = 2, Dir = key == KeyCode.UpArrow, Depth = i });
+                        break;
+                }
             }
         }
-        if (Input.GetKeyDown(KeyCode.LeftArrow))
-        {
-            for (int i = 0; i < size; i++)
-            {
-                Turn(new Slice { Axis = 1, Dir = true, Depth = i });
-            }
-        }
-        if (Input.GetKeyDown(KeyCode.UpArrow))
-        {
-            for (int i = 0; i < size; i++)
-            {
-                Turn(new Slice { Axis = 2, Dir = true, Depth = i });
-            }
-        }
-        if (Input.GetKeyDown(KeyCode.DownArrow))
-        {
-            for (int i = 0; i < size; i++)
-            {
-                Turn(new Slice { Axis = 2, Dir = false, Depth = i });
-            }
-        }
+
+        HandleKeyInput(KeyCode.RightArrow);
+        HandleKeyInput(KeyCode.LeftArrow);
+        HandleKeyInput(KeyCode.UpArrow);
+        HandleKeyInput(KeyCode.DownArrow);
 
         // Instantiate cubelets
         int spawned = 0;
